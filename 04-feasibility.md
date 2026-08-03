@@ -27,7 +27,7 @@ The project's own "vertical-slice limit" rule exists *because* this seam is cons
 
 ## Goal 2 — replacing A12 Workflows: feasible, not close, but estimable
 
-The denominator is defined, which is more than most migration projects manage: 62 physical BPMN files, 50 distinct exact-byte models, 7 production delegates, plus a façade and blueprint surface.
+The target is [A12 Workflows](https://github.com/mgm-tp/a12-workflows), and its denominator is defined — which is more than most migration projects manage: 62 physical BPMN files, 50 distinct exact-byte models, 7 production delegates, plus a façade and blueprint surface.
 
 | Measure | Current |
 |---|---:|

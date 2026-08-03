@@ -171,3 +171,4 @@ Authoritative project documents, each with a single owner:
 | Bounded feature meanings, laws, witnesses | [docs/capsules/](../bpmn-lean-experiment/docs/capsules/README.md) |
 | Superseded proposals and the retired handoff | [docs/archived/](../bpmn-lean-experiment/docs/archived/README.md) |
 | Documentation registry | [docs/README.md](../bpmn-lean-experiment/docs/README.md) |
+| The downstream adoption target itself (external, EUPL-1.2 — research input only, never a dependency) | [mgm-tp/a12-workflows](https://github.com/mgm-tp/a12-workflows) |
