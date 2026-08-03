@@ -4,7 +4,16 @@
 
 ## Purpose, and the charter that drives updates
 
-**Purpose.** This folder explains *why* `bpmn-lean-experiment` is built the way it is, and *how far along it honestly is*, to someone who does not already know BPMN, Lean, or Temporal internals. It is a **reasoned assessment**, not a manual and not an authority. Its value is synthesis and judgement across boundaries the repository deliberately keeps separate — because each repository document is correctly narrow, and nothing there is allowed to say "here is the whole picture, and here is what it is worth".
+**Purpose.** This repository explains *why* [`bpmn-lean-experiment`](https://github.com/mbackschat/bpmn-lean-experiment) is built the way it is, and *how far along it honestly is*, to someone who does not already know BPMN, Lean, or Temporal internals. It is a **reasoned assessment**, not a manual and not an authority. Its value is synthesis and judgement across boundaries the repository deliberately keeps separate — because each repository document is correctly narrow, and nothing there is allowed to say "here is the whole picture, and here is what it is worth".
+
+> **Clone both side by side.** Every link into the described project is relative and assumes a sibling checkout:
+>
+> ```sh
+> git clone https://github.com/mbackschat/bpmn-lean-experiment.git
+> git clone https://github.com/mbackschat/bpmn-lean-experiment-assessment.git
+> ```
+>
+> Those `../bpmn-lean-experiment/…` links do not resolve while browsing this repository on GitHub, because they deliberately point outside it. Read the record locally, or use the [Where to read more](#where-to-read-more) table to reach the project's documents on GitHub.
 
 **It is never authoritative.** The repository's own documents win every disagreement, always. Where a statement here conflicts with [docs/IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md), the implementation map is right and this folder has a bug. Nothing here may be the sole source of any claim.
 
