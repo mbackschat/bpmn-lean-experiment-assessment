@@ -106,6 +106,7 @@ The four days between the second and third revisions were the densest in the pro
 | 14 | **[Scopes, quiescence, and cancellation](14-scopes-and-cancellation.md)** | **New.** The largest semantic addition of this window: definition scopes, quiescent completion, regional cancellation, called roots |
 | 15 | **[How the project governs its own claims](15-review-and-delegation.md)** | **New.** The cold/warm review regime, its executable guard, its attestation gap, and the delegated-implementation protocol |
 | 16 | **[What you can actually run today](16-what-you-can-run.md)** | **New.** The MVP command, the dummy actor, the 28-case catalog, and their explicit non-claims |
+| 17 | **[How to review this project](17-how-to-review.md)** | **New.** Ten traps, an eight-dimension evaluation framework, and eleven red flags — moved here from the project's own reviewer guide |
 
 ### Suggested paths
 
@@ -113,7 +114,7 @@ The four days between the second and third revisions were the densest in the pro
 |---|---|
 | new to the project | [00](00-background.md) → [16](16-what-you-can-run.md) → [06](06-typescript-core-correctness.md) → [07](07-temporal-adapter.md) |
 | returning after the 30 July revision | [12](12-corrections-log.md) → [What changed](#what-changed-since-the-30-july-version) → [04](04-feasibility.md) → the four new documents |
-| assessing whether to trust the architecture | [02](02-evidence-and-lanes.md) → [15](15-review-and-delegation.md) → [04](04-feasibility.md) → [11](11-open-questions.md) |
+| assessing whether to trust the architecture | [17](17-how-to-review.md) → [02](02-evidence-and-lanes.md) → [15](15-review-and-delegation.md) → [04](04-feasibility.md) → [11](11-open-questions.md) |
 | interested in the semantics specifically | [05](05-semantic-core-and-il.md) → [13](13-admission-and-profiles.md) → [14](14-scopes-and-cancellation.md) → [10](10-case-study.md) |
 | evaluating the formal-methods content | [01](01-theorem-techniques.md) → [09](09-property-inventory.md) → [03](03-is-lean-goal-driven.md) |
 
