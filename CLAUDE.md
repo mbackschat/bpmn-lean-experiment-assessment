@@ -85,9 +85,11 @@ When a statement here turns out to have been wrong, the correction is a **rewrit
 
 ## Before finishing
 
-Check, and report the result:
+**Run `sh scripts/check.sh` and report its output.** It is the only executable guard this folder has, and it covers more than it looks: intra-folder file links, cross-document and self anchors, every pinned cross-repo URL — both that the path exists at that commit *and* that the pin names the current baseline — plus a drift report against the described repository. Exit 3 from the staleness half means "a revisit is owed", not a failure.
 
-- every intra-folder link and anchor resolves, and **every pinned cross-repo URL names the current baseline commit and exists at it** — verify against the local sibling checkout at that commit, because this folder has no executable link guard;
+Then check, and report the result:
+
+- `scripts/check.sh` exits 0, or its drift report is the only reason it does not;
 - no figure contradicts `IMPLEMENTATION-MAP.md`;
 - **no changelog or revision-history material survives anywhere.** Grep for `previous revision`, `new in this`, `this revision`, `last revision`, `used to`, `superseded`, `Resolved`, `changed since`, and bare dates, and delete what you find;
 - the README states the exact baseline commit and its date;
