@@ -13,7 +13,7 @@ Do not assert what this folder does or does not contain without opening it. Ever
 | Check | Enforces |
 |---|---|
 | `check-links.sh` | file links, cross-document and self anchors, pinned cross-repo URLs — that each path exists at the baseline commit *and* that each pin names the current baseline |
-| `check-prose.sh` | Rule 0 — no changelog framing about this record's own past |
+| `check-prose.sh` | Rule 0 — no appended corrections section, no strikethrough, no changelog framing about this record's own past |
 | `check-staleness.sh` | the README baseline is a real commit, and how far the described repository has moved since it |
 
 A new guard is only trustworthy once a **planted violation** has been shown to fail it. That is the described repository's own rule and it applies here.
@@ -24,9 +24,11 @@ A new guard is only trustworthy once a **planted violation** has been shown to f
 
 Every document describes **what is true now**. This is not a history of the project and not a history of this record. The reader wants the current picture; they do not care how it was arrived at.
 
+The owner's wording is that corrections must never be **appended**. That is the shape to recognise: a section added at the end of a document, or a note added beside a paragraph, that tells the reader an earlier statement was wrong. Appending is the natural move when a claim turns out false, and it is banned precisely because it works — it leaves both sentences on the page and makes the reader adjudicate which one is current.
+
 Concretely, and these are prohibitions rather than preferences:
 
-- **No corrections log, no changelog, no revision history, no "what changed" section.** If a statement became false, **rewrite it** and delete the old one. Do not annotate, do not strike through, do not keep the wrong version beside the right one.
+- **No corrections log, no changelog, no revision history, no "what changed", "errata", "addendum", or "update" section**, whatever it is titled. If a statement became false, **rewrite it in place** and delete the old one. Do not annotate, do not strike through, do not keep the wrong version beside the right one.
 - **No "new in this revision", "previously", "the last revision said", "this used to be", "now corrected", "⚠ Resolved", or "superseded"** as framing for this record's own past. Delete the frame and state the fact.
 - **No comparison between versions of this record**, and no counts of how many of its own claims were wrong.
 - **Do not narrate the project's chronology either.** "Six capsules closed in four days" is a changelog sentence. "Thirty bounded mechanisms are closed, each pinned to a literal" is the same information as a present-tense fact, and it is the one to write.
@@ -36,7 +38,9 @@ Two things are **not** history and stay:
 1. **Provenance.** One exact baseline commit, its date, and the worktree state, because every figure is measured against it. That is what makes a figure checkable.
 2. **The project's own recorded history where it is a current fact about the project.** The repository maintains a capsule cost ledger and a process assessment ledger; their contents are present-tense evidence about how the project works and belong here. The distinction is ownership: report *their* ledgers, keep none of your own.
 
-When a statement here turns out to have been wrong, the correction is a **rewrite plus a one-line note to the user in the response** — never a durable artefact in the folder.
+When a statement here turns out to have been wrong, the correction is a **rewrite plus a one-line note to the user in the response** — never a durable artefact in the folder. The response is where a correction belongs, because the user reads it once and it does not persist to confuse the next reader.
+
+`check-prose.sh` enforces the mechanical half: it rejects a heading whose whole text is a corrections, changelog, errata, addendum, revisions, or update section, rejects `~~strikethrough~~`, and rejects phrasing that points at this record's own past. It matches a section **structurally**, so renaming the heading does not evade it. What it cannot see is a paragraph that narrates chronology in fresh words; that half is on the author.
 
 ## Purpose and scope
 
@@ -104,6 +108,6 @@ When a statement here turns out to have been wrong, the correction is a **rewrit
 Then check the things no script can, and report the result:
 
 - **no figure contradicts `IMPLEMENTATION-MAP.md`**, and each one names the artefact that produced it. This is the largest unguarded surface here: `check-prose.sh` catches changelog *framing* and `check-links.sh` catches a dead *path*, but **nothing detects a stale number**. A figure can use entirely current vocabulary, sit in a well-formed sentence, and be wrong — the described repository guards its own figures only where a number has an executable owner, and none of this record's do. Re-derive, never carry forward;
-- Rule 0 holds in substance, not only in vocabulary. The guard matches unambiguous self-referential phrasing; it cannot see a paragraph that narrates chronology in fresh words;
+- Rule 0 holds in substance, not only in vocabulary. The guard rejects the appended-section shape outright and matches unambiguous self-referential phrasing; it cannot see a paragraph that narrates chronology in fresh words;
 - the described repository's worktree is still clean;
 - **when re-baselining, every pinned cross-repo URL names the new commit.** `check-links.sh` fails if one does not, so this is guarded — but it is a mechanical pass over every document, so plan for it rather than discovering it.
