@@ -29,11 +29,13 @@ flowchart TB
     NOW ==>|"the widening that forces the question"| LATER
 ```
 
-> **⚠ Update — twice.** When the original document was written, that widening was a *hard gate*: the observational preservation theorem had to close **before** source admission could widen. **That ordering was reversed on 2026-07-30**, replaced by a targeted per-capsule preservation gate ([03](03-is-lean-goal-driven.md)).
->
-> Since then the *left-hand box changed too*, and in the more interesting direction. The [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) removed the exact whole-topology execution-surface predicates — an executable architecture guard now *prohibits* reintroducing one — and split admission into a reusable topology-independent graph/program validator plus a per-profile mechanism-and-cardinality capability. So the "named bounded topologies" framing is obsolete: the graph-shape half of admission generalised, while the capability half did not. Fixtures still cover the reachable space because capability is still enumerated per profile, which is exactly why the argument above has not yet been forced.
+**Two things about that diagram are not what a reader would assume.**
 
-**A useful way to hold this:** the quantified-theorem argument is about what happens when the number of *accepted graphs* becomes unbounded. Generalising the validator moved the project closer to that without crossing it. The first profile that admits a *family* rather than a shape is where the argument becomes load-bearing, and no such profile exists yet.
+The widening is **not** gated on the preservation theorem. The owner replaced that ordering with a targeted per-capsule preservation gate ([03](03-is-lean-goal-driven.md)), so a capsule states the exact source-to-result claim it can invalidate and closes the smallest reusable theorem *or executable guard* protecting it, rather than waiting on a universal result.
+
+And the left-hand box is only half true. The [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) split admission into a reusable topology-independent graph/program validator plus a per-profile mechanism-and-cardinality capability, and an executable architecture guard *prohibits* reintroducing a whole-topology execution-surface predicate. So the graph-shape half of admission is generalised; the capability half is still an enumerated multiset per profile.
+
+**A useful way to hold this:** the quantified-theorem argument is about what happens when the number of *accepted graphs* becomes unbounded. Generalising the validator moved the project close to that without crossing it. The first profile admitting a *family* rather than a shape is where the argument becomes load-bearing, and no such profile exists.
 
 **The second motivation is different and less obvious: BPMN's prose is ambiguous, so you must *choose* a reading — and a choice you cannot state precisely is a choice you cannot review, defend, or notice yourself violating.**
 
@@ -67,7 +69,7 @@ flowchart LR
     DEF -->|"reasoned about"| PRF["<b>Role B — formal authority</b><br/>theorems constraining<br/>those same definitions"]
 ```
 
-**Role A: executable reference interpreter.** `lake exe emitSemanticProcessResults` decodes the same **28** answer-free scenario files the TypeScript core and CIB runner consume, executes them, and emits results into the comparison pipeline. This is not a proof — it is a second independent implementation, useful precisely because two transcriptions make different mistakes.
+**Role A: executable reference interpreter.** `lake exe emitSemanticProcessResults` decodes the same **51** answer-free scenario files the TypeScript core and CIB runner consume, executes them, and emits results into the comparison pipeline. This is not a proof — it is a second independent implementation, useful precisely because two transcriptions make different mistakes.
 
 Lean also *echoes* what it decoded, and the pipeline requires that echo to equal the admitted document byte-for-byte, plus injects an extra answer field that the strict decoder must reject. So Role A doubles as an answer-smuggling guard: a target that could read expected values from its input would not be a second opinion at all.
 
@@ -343,34 +345,34 @@ enabledTransitions source state = contributionOf nodeA ++ contributionOf nodeB
 
 There is a matching runtime law: `token_projection_ignores_storage_permutation` proves the public projection is unchanged when stored tokens are permuted. Order-independence is asserted at both the proof layer and the observation layer.
 
-> **⚠ Update — the wait-ordering companion claim, and the reopen trigger that actually fired.** This is the best worked example in the repository of a conditional claim doing its job, so it is worth the whole story.
->
-> **Round one.** The original document reported four implementations of canonical `activeWaits` order following three different rules, and a theorem whose *name* claimed kind-then-element-ID while its fixture — one wait per kind — could only establish the kind half.
->
-> **Round two (30 July).** Two implementations were repaired, the theorem was renamed to `active_wait_projection_orders_by_semantic_kind` so its name stopped over-claiming, and Lean's remaining divergence was resolved by *correcting the claim*: `IMPLEMENTATION-MAP.md` stated that Lean's within-kind order followed program operation order, and `PLAN.md` recorded the premise and the reopen trigger — the contract held *"only while admitted programs are ID-sorted and mixed or repeated same-kind waits are unreachable"*, and any admission invalidating either premise *"must reopen the projection rule and add an element-ID sort in Lean or a checked theorem that the two orders coincide."*
->
-> **Round three (current).** The trigger fired. Adding the Message wait kind changed the closed wait-kind domain, and the [Intermediate Catch Message capsule](../bpmn-lean-experiment/docs/capsules/INTERMEDIATE-CATCH-MESSAGE-SPEC.md) honoured the obligation instead of arguing around it — and notably *declined the cheaper escape*: an order-coincidence theorem was rejected because it *"would preserve the fragile ID-sorted-program premise that this domain change is required to reopen."*
->
-> ```lean
-> -- BpmnSemantics/SemanticProcess/Scenario.lean — current projection
->   sortActiveWaitsByElementId taskWaits ++
->     sortActiveWaitsByElementId messageWaits ++
->     sortActiveWaitsByElementId timerWaits ++
->     sortActiveWaitsByElementId effectWaits
-> ```
->
-> | Implementation | Rule today |
-> |---|---|
-> | `packages/semantic-core/src/scenario.ts` | kind rank, then element ID |
-> | `runners/…/CibSevenActiveWaitProjector.java` | kind rank, then element ID |
-> | `scripts/contract-cib-evidence-projection.ts` | kind rank, then element ID |
-> | `BpmnSemantics/SemanticProcess/Scenario.lean` | kind rank, then element ID — **fixed** |
->
-> The fixture grew with it, and the growth is the point. It now carries **four kinds** with element IDs chosen so a global element-ID sort *disagrees* with kind order, plus a **reverse-ordered same-kind pair** — `Z_UserTask` stored before `B_UserTask` — so the theorem discriminates the element half too. Its docstring states exactly that. A fixture that cannot fail for the right reason is not a lock, and this one was upgraded until it could.
->
-> **Round four (during this review).** `PLAN.md` was still narrating the round-two premise as current after the code had moved past it. Commit `e873ec7` replaced that sentence with the discharged outcome, and — because the same review found four *implemented specifications* still naming the retired `terminate` operation — extended the executable retired-vocabulary guard to scan `docs/`. See [12 §10](12-corrections-log.md#10--four-implemented-specifications-named-a-retired-il-operation--resolved-in-code-and-guarded).
->
-> **What to take from four rounds.** The intermediate state — a conditional claim with a named premise and an explicit reopen trigger — was not a way of avoiding the fix. It was a *scheduled* fix with a machine-checkable firing condition, and it fired on the next capsule that touched the wait-kind domain. That is the strongest available evidence that this project's conditional claims are load-bearing rather than decorative. The instructive tail is that the *code* fix landed one capsule after the trigger fired, while the *documentation* took a further review to catch up — and the eventual repair was to stop relying on readers and add a gate.
+### The companion claim: canonical wait ordering
+
+The same principle governs the public `activeWaits` projection, and it is the best worked example in the repository of a **conditional claim with a machine-checkable firing condition**, so it is worth following in full.
+
+All four implementations order active waits by **semantic kind rank, then element ID**:
+
+```lean
+-- BpmnSemantics/SemanticProcess/Scenario.lean
+  sortActiveWaitsByElementId taskWaits ++
+    sortActiveWaitsByElementId messageWaits ++
+    sortActiveWaitsByElementId timerWaits ++
+    sortActiveWaitsByElementId effectWaits
+```
+
+| Implementation | Rule |
+|---|---|
+| `packages/semantic-core/src/scenario.ts` | kind rank, then element ID |
+| `runners/…/CibSevenActiveWaitProjector.java` | kind rank, then element ID |
+| `scripts/contract-cib-evidence-projection.ts` | kind rank, then element ID |
+| `BpmnSemantics/SemanticProcess/Scenario.lean` | kind rank, then element ID |
+
+The theorem locking it is `active_wait_projection_orders_by_semantic_kind`, and its **fixture is the load-bearing part**. It carries four wait kinds with element IDs chosen so a global element-ID sort *disagrees* with kind order, plus a **reverse-ordered same-kind pair** — `Z_UserTask` stored before `B_UserTask` — so the theorem discriminates the element half as well as the kind half. Its docstring says exactly that. A fixture that cannot fail for the right reason is not a lock.
+
+**What makes this instructive is the mechanism that got it here.** For a period the four implementations followed three different rules and the theorem's name claimed more than its one-wait-per-kind fixture could establish. The repair was not to assert agreement but to state the weaker true claim with a **named premise and an explicit reopen trigger**: the contract held *"only while admitted programs are ID-sorted and mixed or repeated same-kind waits are unreachable"*, and any admission invalidating either premise *"must reopen the projection rule and add an element-ID sort in Lean or a checked theorem that the two orders coincide."*
+
+Adding the Message wait kind changed the closed wait-kind domain, so the trigger fired. The [Intermediate Catch Message capsule](../bpmn-lean-experiment/docs/capsules/INTERMEDIATE-CATCH-MESSAGE-SPEC.md) honoured it rather than arguing around it, and declined the cheaper escape explicitly: an order-coincidence theorem was rejected because it *"would preserve the fragile ID-sorted-program premise that this domain change is required to reopen."*
+
+A conditional claim with a named premise is therefore not a way of avoiding a fix here. It is a **scheduled fix with a firing condition**, and this one fired on the next capsule that touched its domain. That is the strongest available evidence that this project's conditional claims are load-bearing rather than decorative. The tail worth knowing is that the *code* caught up one capsule after the trigger fired while the *documentation* lagged further, and the eventual repair was to stop relying on readers and add an executable retired-vocabulary guard over `docs/`.
 
 ## 1.11 Auditing the trust base
 
@@ -409,7 +411,7 @@ Theorems are verified at *build* time — an unproved `theorem` fails to compile
 
 Reachability is engineered rather than accidental, which is a subtle and good detail. The library root `BpmnSemantics.lean` imports no `Experiments` module, so plain `lake build` never sees the experimental proofs. They enter the default gate only via explicit `lake build checkCheckedSourceRelationExperiment` / `lake exe checkCheckedSourceRelationExperiment` lines in `scripts/verify.sh`, and `scripts/verification-entrypoint.test.ts` asserts that both the commands and the specific module imports are present. **A theorem nobody imports proves nothing about the shipped gate** — the project treats that as an invariant worth its own test.
 
-A second, newer guard runs in the same spirit at the *naming* level rather than the reachability level. The source-hygiene gate requires every durable checked fact in a maintained `*Conformance.lean` module to have a descriptive **public** `theorem` name, reserving `private theorem` for supporting lemmas. The rationale is the same defect the wait-ordering rename fixed: a theorem whose name is invisible or whose name over-claims will mislead every future reader, and names are the cheapest part of a proof to get right. The current generated statistics count 327 public theorem declarations against 26 supporting lemmas.
+A second, newer guard runs in the same spirit at the *naming* level rather than the reachability level. The source-hygiene gate requires every durable checked fact in a maintained `*Conformance.lean` module to have a descriptive **public** `theorem` name, reserving `private theorem` for supporting lemmas. The rationale is the same defect the wait-ordering rename fixed: a theorem whose name is invisible or whose name over-claims will mislead every future reader, and names are the cheapest part of a proof to get right. The generated statistics count 815 public theorem declarations against 93 supporting lemmas.
 
 ## 1.13 What theorems deliberately do *not* do
 
@@ -438,6 +440,6 @@ All three were removed. Hence the standing review question — *does each theore
 
 ## 1.15 The purpose, in one paragraph
 
-Theorems exist to make a *future* capability safe: once admitted profiles accept a grammar rather than an enumerated mechanism set, fixtures stop covering the input space and a universally quantified theorem is the only lane that scales. That was also, until 30 July 2026, the project's explicit sequencing rule — the preservation theorem had to close before admission widened. **It no longer is.** The rule became a *targeted per-capsule preservation gate*: each capsule that widens admission or replaces a representation must protect its own exact source-to-result risk, and the universal theorem reopens only when a second capsule needs the same proposition. [03](03-is-lean-goal-driven.md) is about why that changed and how the replacement performed across the six capsules that have since used it.
+Theorems exist to make a *future* capability safe: once admitted profiles accept a grammar rather than an enumerated mechanism set, fixtures stop covering the input space and a universally quantified theorem is the only lane that scales. That is deliberately **not** the project's sequencing rule, though. The governing rule is a *targeted per-capsule preservation gate*: each capsule widening admission or replacing a representation protects its own exact source-to-result risk, and the universal theorem reopens only when a second capsule needs the same proposition. [03](03-is-lean-goal-driven.md) is about why that ordering was chosen and how it performs.
 
-**And a second purpose has become visible in the meantime, which the original framing undersold.** Six capsules closed under the targeted gate in four days, and what the theorems mainly bought was not future-proofing — it was *catching the cross-implementation disagreement that a shared fixture hides*. Every one of those capsules produced at least one non-law or exact-closure bound refuting a reading that would have passed the fixtures. Quantified laws remain the only lane that scales; checked non-laws and exact closure bounds are what pay for themselves immediately.
+**And there is a second purpose that the future-proofing framing undersells.** Across the capsules closed under the targeted gate, what the theorems mainly buy is not coverage of unbuilt cases — it is *catching the cross-implementation disagreement a shared fixture hides*. Essentially every capsule produces at least one non-law or exact-closure bound refuting a reading that would have passed its fixtures. Quantified laws remain the only lane that scales; checked non-laws and exact closure bounds are what pay for themselves immediately.

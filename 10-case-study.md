@@ -12,11 +12,11 @@ flowchart LR
 
 Three nodes, two Sequence Flows, one human step. Chosen deliberately: it is the project's `user-task-discovery-completion` scenario, it has no concurrency, and every artefact below is quoted verbatim from the repository at commit `5b65954`.
 
-**It also carries data now.** Since the previous revision the same three-node model gained an initial Process variable at start and a submitted form patch at completion, under two selected CIB extensions. That is a useful accident for a case study: the *topology* is unchanged, so every difference below is attributable to the data and scope work rather than to a bigger diagram.
+**It also carries data.** The model installs an initial Process variable at start and submits a form patch at completion, under two selected CIB extensions. That is useful for a case study: the topology is trivial, so everything below is attributable to the data, scope, and identity machinery rather than to diagram complexity.
 
 ## 10.2 Layer 0 — the exact bytes
 
-The authoritative input is a byte sequence, not a parsed object. It is byte-identical to the previous revision — same digest, `b5704a6d…86378d`:
+The authoritative input is a byte sequence, not a parsed object. Its digest is `b5704a6d…86378d`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -97,7 +97,7 @@ def sequentialCheckedProcess : CheckedProcess :=
 
 Read out the design choices:
 
-- **Three scope fields appeared, for a model with one scope.** `definitionScopes`, `nodeScopes`, and `sequenceFlowScopes` declare that every node and flow belongs to the root Process scope. For a flat model this looks like pure overhead — and it is exactly why adding an embedded Sub-Process was a *replacement* of a uniform shape rather than a special case bolted onto a flat one. The single-scope model pays a small tax so the two-scope model needs no new shape. See [04](04-feasibility.md#the-flat-state-concern-now-largely-answered-for-one-level).
+- **Three scope fields appeared, for a model with one scope.** `definitionScopes`, `nodeScopes`, and `sequenceFlowScopes` declare that every node and flow belongs to the root Process scope. For a flat model this looks like pure overhead — and it is exactly why adding an embedded Sub-Process was a *replacement* of a uniform shape rather than a special case bolted onto a flat one. The single-scope model pays a small tax so the two-scope model needs no new shape. See [04](04-feasibility.md#the-structural-worry-about-flat-state-and-how-it-turned-out).
 - **Nodes are sorted by ID**, so `EndEvent_1` precedes `StartEvent_1`. Sorting is *serialisation*, not order of execution — the point [01 §1.10](01-theorem-techniques.md#110-refusing-to-let-collection-order-become-semantics) is about.
 - **Element IDs are typed**, not bare strings — `NodeId` and `SequenceFlowId` are different types ([01 §1.7](01-theorem-techniques.md#17-typed-identifier-domains)).
 - **The digest travels with the graph.** No derived artefact can drift from the bytes.
@@ -105,11 +105,11 @@ Read out the design choices:
 
 **Where Lean helps at this layer:** `checkedWellFormed` independently re-validates the graph — one start, one end, legal arity per node kind, every reference resolves, no self-loops, sorted distinct IDs, and now scope ownership completeness. Kernel-checked regressions prove it rejects empty, flowless, and dangling-reference graphs. Those three regressions exist because a genuine defect once accepted all three.
 
-**Where Lean cannot help at this layer:** it does not parse the XML. The step from bytes to this structure has exactly one implementation. Only CIB Seven, which reads the bytes, can independently disagree — and for this scenario it does run, which is not true of ten of the 28 registered cases. See [02](02-evidence-and-lanes.md#but-the-decorrelation-is-narrower-than-that-diagram-suggests).
+**Where Lean cannot help at this layer:** it does not parse the XML. The step from bytes to this structure has exactly one implementation. Only CIB Seven, which reads the bytes, can independently disagree — and for this scenario it does run, which is not true of 27 of the 51 registered cases. See [02](02-evidence-and-lanes.md#for-most-of-the-surface-that-lane-does-not-run).
 
 ## 10.5 Layer 2 — lowering produces the IL program
 
-Here the previous revision quoted a hand-written Lean literal. **That literal no longer exists**, and its disappearance is a small improvement worth noticing:
+The Lean fixture deliberately does **not** write the program out as a literal:
 
 ```lean
 def sequentialProgram : Program :=
@@ -128,7 +128,7 @@ What it evaluates to, for this model:
 
 Stated plainly: **two Sequence Flows became two token containers; three BPMN nodes became three semantic operations wired to those containers.**
 
-The third operation used to be `terminate`. It is now `reachNoneEnd`, because reaching a none End Event and *completing a scope* turned out to be two mechanisms wearing one name — a flat Process can conflate them, a Process with a child scope cannot. Root completion is now a separate `completeScope` that fires only on quiescence. See [05](05-semantic-core-and-il.md#the-terminate--reachnoneend--completescope-replacement).
+The third operation is `reachNoneEnd` rather than a single `terminate`, because reaching a none End Event and *completing a scope* are two mechanisms — a flat Process can conflate them, a Process with a child scope cannot. Root completion is a separate `completeScope` that fires only on quiescence. See [05](05-semantic-core-and-il.md#why-there-is-no-terminate-operation).
 
 **Where Lean helps at this layer** — three distinct things, easy to confuse:
 
@@ -222,7 +222,7 @@ theorem start_reaches_single_user_task_wait :
 
 Not merely "a task appears" — the *entire* resulting state, field by field, including the installed Process binding, the root scope occurrence, that the closure bound was not hit, and that no ambiguous internal choice arose. Kernel-computed.
 
-> **Worth noticing:** `ambiguousInternalChoice` is a Lean-only field. The TypeScript `CommandResult` has no such flag, and Lean's `applyStimulus` returns a five-arm outcome union where TypeScript's returns two. **Six capsules later that is still true** — the previous revision predicted the TypeScript type would have to widen and it did not ([12 §9](12-corrections-log.md#9--the-exclusive-gateway-needs-rolledback-so-the-typescript-result-type-must-widen--void)). The two implementations agree on the *canonical observation* while their transition-result values are not even the same shape, which is the concrete texture of the independence discussed in [06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts).
+> **Worth noticing:** `ambiguousInternalChoice` is a Lean-only field. The TypeScript `CommandResult` has no such flag, and Lean's `applyStimulus` returns a five-arm outcome union where TypeScript's returns two. That asymmetry has survived every capsule. The two implementations agree on the *canonical observation* while their transition-result values are not even the same shape, which is the concrete texture of the independence discussed in [06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts).
 
 **② The completion transition — exact termination with committed data**
 
@@ -256,7 +256,7 @@ theorem no_completion_before_matching_command :
   decide
 ```
 
-The `state := afterStartState` line is the load-bearing part, and it now says more than it used to: the rejected command *carried data*, and none of it was written. A rejection that mutated state — or that leaked a variable — would be a durability bug waiting to happen.
+The `state := afterStartState` line is the load-bearing part, and it says more than "nothing happened": the rejected command *carried data*, and none of it was written. A rejection that mutated state — or that leaked a variable — would be a durability bug waiting to happen.
 
 **④ Any wrong activation — the one genuinely quantified law**
 
@@ -311,7 +311,7 @@ The same scenario runs through four independent paths, then their **canonical ob
 | **Temporal adapter** | hosts the core in a durable Workflow, twice, in isolation | that durability preserves the result under retry, restart, and replay |
 | **CIB Seven 2.2.0** | deploys the **raw XML bytes** | what a real production engine does |
 
-This scenario is one of the 18 that have a CIB lane. Ten of the 28 do not, and for those the fourth row is deliberately empty — which is worth remembering when reading this case study as representative. It is the *best*-evidenced case in the catalog, not the median one.
+This scenario is one of the 24 cases that have a CIB lane. **Twenty-seven of the 51 do not**, and for those the fourth row is deliberately empty — worth remembering when reading this case study as representative. It is the *best*-evidenced case in the catalog, not the median one.
 
 The retained CIB evidence, abridged, showing the structure that matters:
 
@@ -343,8 +343,8 @@ The retained CIB evidence, abridged, showing the structure that matters:
 Three structural points:
 
 - **`producerObservations` is raw; `result` is the canonical projection.** The engine's own query output is kept separately from the project's canonical view of it. That separation is what makes the projection independently auditable — you can check the derivation instead of trusting it.
-- **`stateQueries` is the repair of a real finding.** `status`, `logicalTimeMs`, and `variables` previously had *no* raw observation at all; roughly half of each retained result was adapter assertion validated against nothing. Commit `08d8b84` added raw Process-instance counts, engine-clock reads, and Process-variable queries, and verifier-side tests now derive the canonical fields from them. `processInstanceCount: 1 → 0` is how "running then completed" is *observed* rather than asserted. See [12 §5](12-corrections-log.md#5--six-canonical-fields-had-no-raw-producer-observation--resolved-in-code).
-- **Both hashes are present**, so this evidence is bound to exactly this scenario and this profile. Edit either and the binding breaks loudly. Note the scenario hash differs from the previous revision's — because the scenario gained its data stimuli, and content binding did exactly what it exists to do.
+- **`stateQueries` is what stops half the result being adapter assertion.** `status`, `logicalTimeMs`, and `variables` are derived by verifier-side tests from raw Process-instance counts, engine-clock reads, and Process-variable queries rather than asserted. `processInstanceCount: 1 → 0` is how "running then completed" is *observed*. A canonical field with no raw source looks identical to a corroborated one in a passing run, which is why this block exists.
+- **Both hashes are present**, so this evidence is bound to exactly this scenario and this profile. Edit either and the binding breaks loudly rather than silently invalidating every stored observation.
 
 ## 10.9 What Lean bought here, and what it did not
 
@@ -365,10 +365,10 @@ Three structural points:
 **Not bought — and this is not a gap in the work, it is the boundary:**
 
 - **That this is the right reading of BPMN.** Lean proves properties of the *chosen* account. The three normative clause references and the CIB test references in the scenario's provenance block are what support the choice.
-- **That CIB Seven agrees.** That is the retained evidence, a different lane — present here, absent for ten of the 28 cases.
+- **That CIB Seven agrees.** That is the retained evidence, a different lane — present here, absent for 27 of the 51 cases.
 - **That Temporal preserves it.** That is refinement and replay, a third lane.
 - **That the TypeScript core matches Lean.** Observed by the pipeline; explicitly *not* proved. [06](06-typescript-core-correctness.md).
-- **That lowering preserves *behaviour*.** The laws cover identity and provenance. Full observational preservation — `lower_preserves_supported_run` — remains unproved, and as of 30 July 2026 is no longer a prerequisite for anything ([03](03-is-lean-goal-driven.md)).
+- **That lowering preserves *behaviour*.** The laws cover identity and provenance. Full observational preservation — `lower_preserves_supported_run` — is unproved, and by owner decision is not a prerequisite for anything ([03](03-is-lean-goal-driven.md)).
 
 That last one deserves a sharp statement, because it is easy to assume away. Nothing yet proves *in general* that executing the lowered program means the same thing as the BPMN graph it came from. For this fixture, four targets agreeing is strong empirical evidence — bounded by the fact that three of them consume the same compiled graph.
 
@@ -398,7 +398,7 @@ flowchart LR
 | **The split can now combine with a host-driven wait** | that needs a scheduler the adapter does not have | `selectMany`-style token splitting is classified and **rejected pre-start** as `concurrentHostDrivenWaits` ([07 challenge 11](07-temporal-adapter.md#challenge-11--host-capability-is-not-semantic-admission)) |
 | **CIB Seven disagrees** | a schema-valid duplicate-same-flow gateway probe exposes divergent behaviour | classified as candidate deviation `CIB-DEV-0001`, kept visible, **not** absorbed into the compatibility claim |
 
-The second-to-last row is new since the previous revision and shows the cost of removing whole-topology admission: a hazard that was *accidentally* impossible became possible, and had to be turned into an explicit typed pre-start refusal.
+The second-to-last row shows the cost of removing whole-topology admission: a hazard that was *accidentally* impossible became possible, and had to be turned into an explicit typed pre-start refusal rather than left to a runtime failure.
 
 The final row is the whole assurance system working as designed. The oracle produced a *disagreement*. It was not resolved by voting, not silently adopted, and not quietly dropped. It was classified, given a stable identifier, and left prominently visible — and the project deliberately declined to expand its CIB profile to claim parallel compatibility.
 

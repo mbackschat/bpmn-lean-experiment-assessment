@@ -1,12 +1,10 @@
 # How to review this project
 
-*New in this revision. Moved here from the project's own `docs/PROTO-MVP-REVIEWER-GUIDE.md`, which was reduced to the navigational material only a repository can own.*
-
 ## Why this lives here rather than in the repository
 
 The project already has a **governed** review protocol: `TESTING-SPEC.md` fixes the cold-reviewer isolation rule, the neutral packet, the `VERDICT:` output contract, and the receipts an infrastructure guard validates ([15](15-review-and-delegation.md)). What follows is not that. It is an *informal* checklist for someone deciding whether to trust the work — closer to a reading aid than to a governed stage.
 
-Those two things must not sit side by side in `docs/`. A second, unenforced "evaluation framework" next to the enforced one is precisely the competing-authority pattern that produced four documentation defects in this project's own tree ([12](12-corrections-log.md), [13](13-admission-and-profiles.md#one-inventory-drift-found-while-writing-this-document--since-resolved)). Here it cannot be mistaken for the governed protocol, because this whole record is non-authoritative by construction.
+Those two things must not sit side by side in the project's `docs/`. A second, unenforced "evaluation framework" next to the enforced one is precisely the competing-authority pattern that has produced real documentation defects in this project's tree ([13](13-admission-and-profiles.md#why-the-capability-table-is-guarded-rather-than-trusted)). Here it cannot be mistaken for the governed protocol, because this whole record is non-authoritative by construction.
 
 **Use the repository's own protocol if you are performing a governed review.** Use this if you are forming a judgement.
 
@@ -16,7 +14,7 @@ These are the misreadings most likely to produce a wrong verdict, and every one 
 
 1. **A capsule `-SPEC.md` means its bounded contract is implemented.** A profile artefact may still say `draft` because the project has no production release or history baseline. Draft is about release status, not about whether the semantics exist.
 2. **`supported` in the requirement ledger can mean a bounded reviewed slice.** Read the owning capsule and its exclusions before generalising it to a whole BPMN construct.
-3. **CIB absence in a standards-only target set is deliberate, not a missing test** — when no CIB relationship was selected for the exact proposition. Ten of the 28 registered cases are in this position, and [02](02-evidence-and-lanes.md#but-the-decorrelation-is-narrower-than-that-diagram-suggests) works through what it costs.
+3. **CIB absence in a standards-only target set is deliberate, not a missing test** — when no CIB relationship was selected for the exact proposition. **Twenty-seven of the 51 registered cases are in this position**, so it is the majority rather than the exception, and [02](02-evidence-and-lanes.md#for-most-of-the-surface-that-lane-does-not-run) works through what it costs.
 4. **Lean is authoritative for the selected operational account after checked-source admission** — and it does not parse XML, prove TypeScript, or prove Temporal refinement. [01](01-theorem-techniques.md#113-what-theorems-deliberately-do-not-do) is explicit about the boundary.
 5. **TypeScript/Lean equality is not majority-vote evidence for the interpretation.** Two transcriptions of one reviewed account can agree and both be wrong; normative reasoning and genuinely independent oracle observation are separate lanes ([06](06-typescript-core-correctness.md#the-distinction-that-does-all-the-work-two-kinds-of-independence)).
 6. **Temporal Event History is host evidence.** Workflow Tasks, Activity attempts, Timer commands, Signals, and Update events are not BPMN semantic state unless the public contract explicitly projects a consequence ([07](07-temporal-adapter.md#challenge-2--temporal-commands-are-not-bpmn-transitions)).
@@ -91,7 +89,7 @@ Eight dimensions. They are deliberately separate because a project can be strong
 - Did implementation lanes own disjoint files and run focused gates while root ran the complete gate once?
 - Are modules cohesive and below the source-hygiene boundaries, without comment deletion or line-compression tricks?
 - Does the cost ledger compare the measured direction honestly against a real baseline?
-- Are the plan, implementation map, profile and scenario registries, and document registry synchronised? — this is the dimension where the project's own defects have actually been found ([12 §10](12-corrections-log.md#10--four-implemented-specifications-named-a-retired-il-operation--resolved-in-code-and-guarded))
+- Are the plan, implementation map, profile and scenario registries, and document registry synchronised? — this is the dimension where the project's own defects have actually been found, and where its guards are newest ([19](19-process-self-measurement.md))
 
 ## Red flags that merit a required finding
 
@@ -111,4 +109,4 @@ Each of these is a pattern, not a guess — several have occurred in this reposi
 
 ## Where to run things
 
-Executable review commands, the review route, and the repository map stay in the project's own [`docs/PROTO-MVP-REVIEWER-GUIDE.md`](https://github.com/mbackschat/bpmn-lean-experiment/blob/main/docs/PROTO-MVP-REVIEWER-GUIDE.md), because paths and commands belong with the files they address. [16](16-what-you-can-run.md) covers what those commands establish and what they do not.
+Executable commands, gate selection, and the route to each owning document stay in the project's own [documentation registry](../bpmn-lean-experiment/docs/README.md) and [TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md), because paths and commands belong with the files they address. [16](16-what-you-can-run.md) covers what those commands establish and what they do not.

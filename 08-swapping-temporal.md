@@ -4,7 +4,7 @@
 
 Feasible — and the project is in unusually good shape for it. Three structural reasons, all verifiable from the current tree. Read [07](07-temporal-adapter.md) first if you want to know what would actually be replaced.
 
-**What changed since the previous revision:** the answer is unchanged, one coupling was retired before it arrived, and **one genuinely new and sharper coupling appeared** — a dependency on the pinned SDK's activation-batching behaviour. That last one is the first place where the project's correctness argument rests on a behavioural property of Temporal itself rather than on an API shape.
+Three couplings constrain the choice, and they are not equally hard. Two are about *API shape* — does a candidate platform offer this kind of call. The third is about *runtime scheduling behaviour*, and it is the only place where the project's correctness argument rests on a behavioural property of Temporal itself.
 
 ## Reason 1 — the semantic core has no host dependency, verifiably
 
@@ -14,36 +14,26 @@ Not just documented; measured. Running
 rg -n "temporalio|bpmn-moddle|node:" packages/semantic-core/src/
 ```
 
-returns **nothing** across all 28 core modules and 6,158 nonblank lines. No Temporal SDK, no BPMN parser, not even a Node.js built-in. `IMPLEMENTATION-MAP.md` lists "Temporal SDK" in the core's *explicitly absent* column, and the code agrees.
+returns **nothing** across all 62 core modules and 13,092 nonblank lines. No Temporal SDK, no BPMN parser, not even a Node.js built-in. `IMPLEMENTATION-MAP.md` lists "Temporal SDK" in the core's *explicitly absent* column, and the code agrees.
 
-> **⚠ Update — the layering violation this section originally under-reported is fixed, and has stayed fixed.** Independent review found that while *host* independence held, *layer* independence did not: A12 delegate bean names and Camunda extension namespaces were embedded as literal types and admission predicates inside the semantic core and Lean's production lowering. Commit `b0a4002` neutralised them — see [05](05-semantic-core-and-il.md#the-effect-descriptor-is-neutral--and-it-was-not-always).
->
-> Six further capsules have since closed and **none touched the effect descriptor**, which is the predicted payoff observed rather than assumed. Neither violation was host coupling, so the answer to the swap question never changed — but the layering claim can now be read as a general clean bill of health rather than a narrow one.
+**Host independence and *layer* independence are different claims, and both hold.** The grep above establishes the first. The second is that no A12 delegate bean name, Camunda extension namespace, or target-model discriminator appears as a literal type or admission predicate in the core or in Lean's production lowering — effect protocols and operations are profile-registered URNs instead. That distinction is worth knowing because layer independence was once false while host independence was already true, so a grep for SDK imports would have reported a clean bill of health over a real leak. Roughly twenty capsules have closed since the descriptor became neutral and **none touched it** ([05](05-semantic-core-and-il.md#the-effect-descriptor-is-neutral)).
 
 The decision that closed the more dangerous leak is recorded as "R5": current-state task projection, stimulus well-formedness, command identity, and same-stimulus comparison were all moved behind core-owned operations, so *"the Workflow now delegates instead of scanning trace history or maintaining policy copies."*
 
-A thin, delegating Workflow is a replaceable Workflow — and the measurement bears it out better than last time, because it now has a stress test. Ten IL operations were added in four days. The **production** Workflow, `packages/temporal-adapter/src/workflow-implementation.ts`, grew from 413 to **536 nonblank lines** — 123 lines for ten operations, because most of them are internal closure the host never sees.
+A thin, delegating Workflow is a replaceable Workflow, and the ratio is the measurement: `packages/temporal-adapter/workflow/src/workflow-implementation.ts` is **561 nonblank lines** hosting a twenty-four-operation IL, because most operations are internal closure the host never sees.
 
-The package's `src` totals 7,556 nonblank lines, and the distribution is the point:
+The adapter subsystem is six workspace packages, and the distribution is the point:
 
-| Module | Nonblank | Role |
+| Package | Nonblank `src` | Role |
 |---|---:|---|
-| `runner.ts` | 592 | harness |
-| **`workflow-implementation.ts`** | **536** | **production hosting** |
-| `bypass-mutation.ts` | 514 | deliberately-wrong Workflows |
-| `runner-support.ts` | 512 | harness |
-| `process-client.ts` | 465 | production ingress and lifecycle resolution |
-| `harness-evidence.ts` | 419 | evidence extraction |
-| `completion-delivery.ts` | 290 | harness scheduling |
-| `history-evidence-decoding.ts` | 288 | history decoding |
-| `dummy-user-task-actor.ts` | 285 | MVP host simulation |
-| `event-race-readiness-scheduler.ts` | 262 | production hosting |
-| `message-delivery-ledger.ts` | 162 | production hosting |
-| `deterministic-sha256.ts` | 158 | host-neutral |
-| `host-admission.ts` | 115 | production pre-start capability |
-| … plus ~11 mutation-Workflow modules | | deliberately-wrong Workflows |
+| `testkit` | 7,548 | ephemeral servers, deliberately-wrong Workflows, mutations, evidence extraction |
+| `protocol` | 3,539 | contracts, identity, transport, host admission — **no Temporal SDK dependency** |
+| `workflow` | 3,390 | production hosting: the Workflow, its schedulers, publication state |
+| `client` | 2,460 | production ingress and lifecycle resolution |
+| `runner` | 669 | the product command's composition |
+| `worker` | 189 | bundling and Worker lifecycle |
 
-Add the production rows and the genuinely Temporal-shaped surface is roughly **1,600 lines**. Everything else is harness, evidence, or code whose job is to fail.
+Two readings matter here. **`protocol` carries no Temporal SDK dependency at all**, so a third of the production surface is already host-neutral by construction rather than by discipline. And **`testkit` alone is larger than all five production packages combined** — the deliberately-wrong Workflows, ephemeral servers, and history decoding outweigh the hosting they exist to check. That ratio is the real answer to "what would a swap cost", and the next section is why.
 
 ## Reason 2 — no history-compatibility debt exists
 
@@ -59,9 +49,9 @@ The pre-release policy forbids exactly that until a durable baseline is explicit
 | Deployment fallbacks | absent |
 | Compatibility readers, embedded format counters | absent |
 
-Every local gate *"starts clean state, replays histories produced during that gate, and discards the server state afterward."* So right now there is **nothing to migrate** — 30 histories are created, replayed, and thrown away per pipeline run.
+Every local gate *"starts clean state, replays histories produced during that gate, and discards the server state afterward."* So there is **nothing to migrate** — 62 histories are created, replayed, and thrown away per pipeline run.
 
-The policy is not merely stated; it is guarded. A pre-release infrastructure guard rejects embedded format counters, retired representation names, and milestone compatibility paths. That is what made the four days of atomic replacements possible: `terminate` → `reachNoneEnd` + `completeScope`, the flat variable field → scoped variables, and `MessageChannel` → a closed two-arm union each replaced *every* producer, consumer, schema, fixture, and mutation in one change, with no parallel reader anywhere.
+The policy is not merely stated; it is guarded. A pre-release infrastructure guard rejects embedded format counters, retired representation names, and milestone compatibility paths. That is what makes atomic replacement possible at all: splitting `terminate` into `reachNoneEnd` plus `completeScope`, replacing the flat variable field with scoped variables, and replacing `MessageChannel` with a closed two-arm union each touched *every* producer, consumer, schema, fixture, and mutation in one change, with no parallel reader anywhere.
 
 This is a deliberate, temporary state with a named exit. `PROJECT-DESIGN.md` lists five things the owner must approve before the first immutable release or persisted production history — which artefacts become immutable, the Event History baseline and version markers, migration/patching/rollback rules, retained replay fixtures and their provenance, and support windows. From that point on, history compatibility becomes mandatory evidence based on real retained state. **The window in which swapping is cheap is the window before that approval.**
 
@@ -86,10 +76,10 @@ Worth adding: `applyStimulus` — one stimulus in, committed state plus observat
 flowchart LR
     subgraph KEEP["Reusable unchanged"]
         K1["Lean — entirely"]
-        K2["semantic-core<br/>(6,158 lines)"]
+        K2["semantic-core<br/>(13,092 lines)"]
         K3["CIB oracle lane"]
         K4["checked graph + IL + schemas"]
-        K5["15 profiles, 28 scenarios,<br/>retained CIB evidence"]
+        K5["30 profiles, 51 cases,<br/>retained CIB evidence"]
         K6["tuple encoder +<br/>deterministic SHA-256"]
     end
     subgraph SMALL["Rewritten — modest"]
@@ -102,15 +92,15 @@ flowchart LR
     end
     subgraph BIG["Re-earned — the real cost"]
         B1["focused host tests"]
-        B2["56 isolated executions"]
-        B3["30 replayed histories"]
+        B2["102 isolated executions"]
+        B3["62 replayed histories"]
         B4["explicit schedules: ordered, post-terminal,<br/>concurrent, worker-down-at-timer,<br/>worker-down-at-effect, worker-down-in-both<br/>race directions, worker-down-after-throw"]
         B5["~12 bypass mutations, incl. the<br/>barrier and SDK-premise ones"]
         B6["readiness batching + fail-closed<br/>ordering argument — <b>from scratch</b>"]
     end
 ```
 
-The dominant cost is **evidence, not code**, and the gap widened. Proving "the runner never delivers a timer stimulus, the Workflow derives it from committed state, and the execution history contains the exact timer mechanism" is a claim *about Temporal's history format*. You cannot port that; you re-earn it against the new host. Same for the bypass mutations, which are the only thing standing between "the durable mechanism was used" and "the result happened to be right".
+The dominant cost is **evidence, not code**, and the gap is wide. Proving "the runner never delivers a timer stimulus, the Workflow derives it from committed state, and the execution history contains the exact timer mechanism" is a claim *about Temporal's history format*. You cannot port that; you re-earn it against the new host. Same for the bypass mutations, which are the only thing standing between "the durable mechanism was used" and "the result happened to be right".
 
 Box `B6` is new and is the one that would genuinely hurt. See the third coupling below.
 
@@ -136,7 +126,7 @@ Two related pieces would need re-deciding rather than porting. "Retention-bounde
 
 ### 2 · Signal-shaped fire-and-forget ingress, with a project-owned result ledger
 
-**New since the previous revision, and it *reduces* coupling.**
+**This one *reduces* coupling rather than adding it.**
 
 Message delivery arrives as a Temporal **Signal** — fire-and-forget, no return value. Since BPMN delivery has a semantic outcome the caller needs, the adapter built its own ordered durable **result ledger** beside it, readable through a Query and recoverable from the completed receipt.
 
@@ -162,9 +152,9 @@ This is the first place the project depends on Temporal's behaviour rather than 
 
 ### And one coupling that was retired before it arrived
 
-The previous revision reported an incoming fourth coupling: a **Java** Activity Worker on a dedicated task queue for the pinned CIB JUEL runtime, plus a still-unspecified transport for deployment-time expression validation, adding a cross-SDK payload contract to the swap surface.
+A fourth coupling would exist under the delegated JUEL architecture: a **Java** Activity Worker on a dedicated task queue for the pinned CIB runtime, plus a transport for deployment-time expression validation, adding a cross-SDK payload contract to the swap surface.
 
-None of that exists. Conditional routing shipped with a project-owned Boolean language evaluated inside pure core closure, and JUEL is deferred with its dependency graph audited and unadopted. The swap surface is *smaller* than predicted, and the reason is worth generalising: choosing a dependency-free total language over delegating to a pinned runtime removed a portability coupling as a side effect of a semantics decision.
+None of it exists. Conditional routing is implemented with a project-owned Boolean language evaluated inside pure core closure, and JUEL is deferred with its dependency graph audited and unadopted. The swap surface is smaller as a result, and the reason generalises: choosing a dependency-free total language over delegating to a pinned runtime removes a portability coupling as a side effect of a semantics decision.
 
 ## What to do now: nearly nothing
 
@@ -177,4 +167,4 @@ Two cheap, worthwhile things, both documentation-only:
 
 Both are framing, and framing now is the one place where a sentence saves real work later.
 
-> **Confidence note.** The 29 July version of this assessment carried a caveat that it had not read `TEMPORAL-PROCESS-LIFECYCLE-SPEC.md` or reviewed `workflow-implementation.ts` line by line. Both were read in full for the 30 July revision, and re-read for this one along with `host-admission.ts` and `event-race-readiness-scheduler.ts`. The activation-batching coupling described above did not exist at the previous revision and was found by reading the new scheduler module — which is a reasonable illustration of why the caveat mattered. The remaining unread surface is the full Temporal research document; its open-decisions list is summarised in [07](07-temporal-adapter.md) and [11](11-open-questions.md).
+> **Confidence note.** `TEMPORAL-PROCESS-LIFECYCLE-SPEC.md`, `workflow-implementation.ts`, `host-admission.ts`, and `event-race-readiness-scheduler.ts` were read in full for this assessment. The activation-batching coupling described above is only visible by reading the scheduler module — it is not stated as a portability constraint anywhere in the project's own documents — which is why the third coupling is the one most likely to be missed by someone evaluating a migration from the specifications alone. The remaining unread surface is the full Temporal research document; its open-decisions list is summarised in [07](07-temporal-adapter.md) and [11](11-open-questions.md).

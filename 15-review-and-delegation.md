@@ -1,7 +1,5 @@
 # How the project governs its own claims
 
-*New in this revision. An executable review regime and a delegated-implementation protocol both arrived in the 173-commit window; previously they appeared only as passing mentions in [03](03-is-lean-goal-driven.md) and [11](11-open-questions.md).*
-
 ## The problem this solves
 
 Every other document here is about keeping *implementations* honest — theorems, oracles, mutations, replay. This one is about a different failure mode: **the author of a semantic claim is also the person best placed to convince themselves it is fine.**
@@ -86,7 +84,7 @@ Note the pattern: proposal-stage findings changed *designs*, closure-stage findi
 
 ## The delegated-implementation protocol
 
-The same window formalised how *implementation* work is handed to sub-agents, and the contract is unusually specific about what a delegation must contain:
+The project also formalises how *implementation* work is handed to sub-agents, and the contract is unusually specific about what a delegation must contain:
 
 > the exact invariant algorithm, one adversarial counterexample that must fail before the correction, the cross-target invariant matrix of required facts and explicit non-requirements, the files it may own, the files it must not touch, and the proportionate focused gates.
 
@@ -130,7 +128,7 @@ That suggests **cross-document coherence is a distinct review dimension with no 
 
 ## The cost, and the honest uncertainty about it
 
-Every capsule now carries two or three review cycles, each with a committed immutable target and an audited receipt. That is real effort arriving exactly when the measured cost per mechanism is already flat at 3,100–5,800 lines ([04](04-feasibility.md#the-cost-curve-finally-measured)).
+Every material capsule carries two or three review cycles, each with a committed immutable target and an audited receipt. That is real effort arriving where the measured cost per mechanism is already 3,000–6,500 lines ([04](04-feasibility.md#the-cost-curve-measured)).
 
 The project has priced some of it in, and the reductions are genuine rather than cosmetic: stage-specific review focus, static findings before CPU-heavy gates, target-bound neutral review packets, deferral of routine focused gates to the correction audit when a blocking finding already exists, one *combined* checkpoint-and-closure review for a genuinely single-lane atomic closure, and deletion of a temporary pending-lane barrier once its purpose was served.
 
@@ -138,7 +136,7 @@ The project has priced some of it in, and the reductions are genuine rather than
 
 Worse for measurement, review-infrastructure work and feature work land in the same measured ranges: Call Activity's `+5801` absorbs one unrelated review-process commit, and the ledger says so rather than subtracting it. Honest for attribution, unhelpful for isolating the regime's cost.
 
-So [11 §7](11-open-questions.md#7--is-the-review-regimes-cost-proportional-to-its-yield--new) carries this as an open question rather than a complaint. The yield is demonstrated. The cost is real. The ratio is unmeasured, and the project's own reflection checklist — *"remove one identified process weight before starting the next capsule when the measured cost did not fall"* — is being honoured with removals smaller than the increases.
+So [11 §7](11-open-questions.md#7--is-the-review-and-governance-regimes-cost-proportional-to-its-yield) carries this as an open question rather than a complaint. The yield is demonstrated. The cost is real. The ratio is unmeasured, and the project's own reflection checklist — *"remove one identified process weight before starting the next capsule when the measured cost did not fall"* — is being honoured with removals smaller than the increases.
 
 ## What to take from this
 

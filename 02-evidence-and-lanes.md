@@ -34,7 +34,7 @@ Retained evidence carries the SHA-256 of the scenario *and* of the profile that 
 
 **Why:** without it, editing a scenario silently invalidates every stored observation while all comparisons stay green. With it, drift is a hash mismatch.
 
-This is also load-bearing in a second way that only became visible as the catalog grew. Lean consumes the admitted scenario file *directly*, so there is no second compiled copy to diff against; `TESTING-SPEC.md` records that *"retained CIB content binding rather than a second compiled scenario copy detects disk-content drift"* for the 18 CIB-backed cases. Which means the 10 standards-only cases have no equivalent disk-drift detector — a small, honest consequence of the same design.
+This is also load-bearing in a second way that only became visible as the catalog grew. Lean consumes the admitted scenario file *directly*, so there is no second compiled copy to diff against; `TESTING-SPEC.md` records that *"retained CIB content binding rather than a second compiled scenario copy detects disk-content drift"* for the CIB-backed cases. Which means the standards-only cases have no equivalent disk-drift detector — a small, honest consequence of the same design, and one that now applies to 27 of 51 rather than 10 of 28.
 
 ### 3 · Evidence replacement is an explicit, separate operation
 
@@ -54,13 +54,11 @@ Every new evidence projection must come with a *deliberate seeded defect* that t
 
 **Why:** a comparison that observes the wrong field passes forever. A mutation is a test of the test.
 
-> **⚠ Resolved — and now doctrine.** An earlier version of this record described all of these as projection guards. Independent review found that most were applied to a clone of the TypeScript core's *own* canonical output, which proves only that the **comparator** is field-sensitive — nothing about whether the CIB projector, retained evidence, Lean, or Temporal would surface a real behavioural difference.
->
-> That distinction is now a first-class rule in [TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md)'s evidence-lane table:
->
-> > *"Comparator-side mutations (applied to a clone of a target's canonical result) establish that the comparator detects one claimed field distinction; verifier-side mutations (applied to retained raw producer observations) establish that the raw-to-canonical evidence projection detects it … a comparator-side mutation establishes nothing about the evidence projection."*
->
-> The vocabulary did its job. The mutations added by the six capsules since then lean markedly toward the **host-side** row — Event-race barrier removal and SDK-batching-premise removal are the sharpest examples, because both attack a *premise* rather than a value. That is a stronger class than the comparator clones that triggered the finding.
+**The three rows are not interchangeable, and conflating them is the easiest mistake to make here.** A comparator-side mutation is applied to a clone of a target's *own* canonical output, so detecting it proves the comparator is field-sensitive and **nothing** about whether the CIB projector, retained evidence, Lean, or Temporal would surface a real behavioural difference. [TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md) makes that a first-class rule in its evidence-lane table:
+
+> *"Comparator-side mutations (applied to a clone of a target's canonical result) establish that the comparator detects one claimed field distinction; verifier-side mutations (applied to retained raw producer observations) establish that the raw-to-canonical evidence projection detects it … a comparator-side mutation establishes nothing about the evidence projection."*
+
+Having the vocabulary forces every author to declare which kind they wrote, and the newer capsules lean markedly toward the **host-side** row. The Event-race barrier removal and the SDK-batching-premise removal are the sharpest examples, because both attack a *premise* rather than a value — that is a stronger class than a comparator clone.
 
 ### 5 · Fidelity labels — how strongly does this observation actually support the claim?
 
@@ -75,15 +73,13 @@ This is the subtlest mechanism and the most unusual. Every CIB observation carri
 
 The timer capsule is the clearest worked case, and worth stating precisely because it is easy to over-read: the *deadline* and completed *logical time* are `adapter-derived` — the runner writes the scenario's firing time into the controlled engine clock and the projector reads that clock back — while the genuinely `engine-observed` facts are the raw job due-date delta and the pre-due/due eligibility transition. "We verified the timer against the reference engine" would quietly cover all of that, and only the last part is real corroboration.
 
-The classification is enforced structurally rather than by prose: a schema-depth test requires **all eleven top-level fields** of `scenario.schema.json#/$defs/stateObservation` — and every nested occurrence, wait, Message subscription, timer, effect, interaction, and variable field — to be classified, so a new field cannot be added without a fidelity decision.
+The classification is enforced structurally rather than by prose: a schema-depth test requires **all twelve top-level fields** of `scenario.schema.json#/$defs/stateObservation` — and every nested occurrence, wait, Message subscription, timer, effect, incident, interaction, and variable field — to be classified, so a new field cannot be added without a fidelity decision. The field count grew with the incident capsule, which is the mechanism working: a new observation could not land without someone deciding what CIB does and does not corroborate about it.
 
 The sharpest instance of the same honesty: for the boundary-error capsule, CIB Seven is the *source* of the mapping rule the project adopted. The record therefore states that CIB *"supplies rather than corroborates"* it, and *"do not count CIB as independent evidence for the rule it supplies."* You cannot use a source as confirmation of itself.
 
-> **⚠ Resolved — the unobserved-fields finding.** Independent review found six canonical fields with no raw producer observation at all: `outcome`, the `deployment` observation, per-command outcomes, `status`, `logicalTimeMs`, and `variables` — meaning roughly half of each retained CIB result was adapter assertion validated against nothing.
->
-> Commit `08d8b84` closed the substantive part, adding verifier-side tests that bind status, logical time, and variables to raw state queries and bind canonical semantic instance identity to the answer-free start stimulus. `IMPLEMENTATION-MAP.md`'s CIB row now lists raw Process-instance count, engine-clock, Process-variable, timer-job, effect-job, effect-execution, and mapping-execution observations.
->
-> One honest caveat survives, and the project states it itself: the verifier *"reuses the Java projector's ordering, raw-binding translation, activation, lifecycle-state, and empty-argument rules, so it checks raw-to-canonical consistency rather than independently deriving projection semantics."* `TESTING-SPEC.md` draws the consequence explicitly — *"A verifier that reuses producer projection rules remains a raw-to-canonical consistency check and does not become another independent evidence lane."*
+**Every canonical field is now bound to a raw producer observation**, which is worth stating because the alternative is invisible: a canonical field with no raw source is adapter assertion validated against nothing, and it looks identical to a corroborated one in a passing run. `IMPLEMENTATION-MAP.md`'s CIB row lists raw Process-instance count, engine-clock, Process-variable, task-query, subscription, timer-job, effect-job, effect-execution, and mapping-execution observations, and verifier-side tests bind status, logical time, and variables to raw state queries and canonical semantic instance identity to the answer-free start stimulus.
+
+One caveat survives and the project states it itself: the verifier *"reuses the Java projector's ordering, raw-binding translation, activation, lifecycle-state, and empty-argument rules, so it checks raw-to-canonical consistency rather than independently deriving projection semantics."* `TESTING-SPEC.md` draws the consequence explicitly — *"A verifier that reuses producer projection rules remains a raw-to-canonical consistency check and does not become another independent evidence lane."* So the verifier catches a projection that stopped matching its raw source; it cannot catch a projection rule that was wrong from the start.
 
 ## Evidence lanes, and the rule that makes them count
 
@@ -120,29 +116,41 @@ Every one is a deliberate cost paid to *decorrelate* failures. Sharing the IL wi
 
 ### But the decorrelation is narrower than that diagram suggests
 
-**And it narrowed further in this revision.** Independent review traced the actual data flow, and `IMPLEMENTATION-MAP.md` now carries the qualifier in its **Current claim** section — the first thing a reader sees:
+`IMPLEMENTATION-MAP.md` carries the qualifier in its **Current claim** section — the first thing a reader sees:
 
 > *"the TypeScript compiler in `@bpmn-lean/bpmn-source` is the sole producer of the checked BPMN graph and Semantic Process program that Lean, the TypeScript core, and the Temporal adapter all consume. Lean independently recomputes graph-to-program lowering and rejects inequality before evaluation; it has no BPMN XML parser, so a defect in XML-to-checked-graph translation propagates identically into those three targets."*
 
-So arrow **D2** covers only half the translation. Arrow **D1** is real and is what saves it — but only for facts CIB's API exposes. Review's conclusion was that the number of genuinely uncorrelated lanes is **two** — normative/profile review, and pinned-CIB host observation at its recorded fidelity — not four.
+So arrow **D2** covers only half the translation. Arrow **D1** is real and is what saves it — but only for facts CIB's API exposes. **The number of genuinely uncorrelated lanes is two** — normative/profile review, and pinned-CIB host observation at its recorded fidelity — not four.
 
-**And the same paragraph now adds a clause that matters more than the original finding.** It continues: *"Pinned CIB Seven can separate that defect only for a declared CIB profile whose exact source it executes; the standards-only Simple Boolean profile has no such source-level oracle and states that limitation explicitly."*
+The same paragraph adds a clause that matters more than the qualifier itself: *"Pinned CIB Seven can separate that defect only for a declared CIB profile whose exact source it executes; the standards-only Simple Boolean profile has no such source-level oracle and states that limitation explicitly."*
 
-Read that against the catalog. Of 28 registered pipeline cases, **18 have a CIB lane and 10 do not**:
+### For most of the surface, that lane does not run
 
-| Case family | CIB lane | Why absent |
-|---|---|---|
-| sequential User Task (3 cases), parallel fork/join (3), timer, Service Task, CreateDocument, boundary Error, Receive Task, embedded Sub-Process (4), Sub-Process Error (3) | present, 18 cases | a classified relationship (`CIB-AGR-*`, `CIB-OP-*`, `CIB-EXT-*`) was selected |
-| Timer/User Task composition | absent | CIB does not establish the composition or the structural-admission rule |
-| Simple Boolean Exclusive Gateway | absent | CIB cannot execute the project's language |
-| Intermediate Catch Message | absent | no Message compatibility claim was selected |
-| Inclusive Gateway (4 cases) | absent | no Inclusive relationship or expression profile was selected |
-| Event-Based Gateway (2 cases) | absent | no Event-Based Gateway relationship was selected |
-| Call Activity | absent | no Call Activity relationship was selected |
+| | Count |
+|---|---:|
+| registered pipeline cases | **51** |
+| with a CIB oracle lane | 24 |
+| **standards-only, no oracle lane** | **27** |
+| registered profiles | **30** |
+| **profiles declaring `oracle: null`** | **16** |
 
-For those ten, **one of the two genuinely uncorrelated lanes does not run at all.** What remains is normative/profile review plus three targets that share one XML producer. That is not a defect — declining to invent a CIB relationship just to have an oracle is the correct call, and each profile says so in writing. But it is a *material change in the shape of the residual* since the last revision, and it is the reason the newest capsules lean so much harder on non-laws, exact closure bounds, and host-side bypass mutations: those are the guards that still work when the oracle is absent.
+Derived from `pipelineCases` in `packages/differential/test/pipeline-cases.ts` and from the `oracle` field of each `profiles/*/profile.json`.
 
-That the qualifier sits in paragraph two of the implementation map, rather than in one capsule's footnote, remains the substantive repair.
+**Standards-only is the majority.** The families with no oracle include Timer/User Task composition, the Simple Boolean Exclusive Gateway, Intermediate Catch Message, the Inclusive Gateway, the Event-Based Gateway, Call Activity, the cyclic User Task profile, Message Start, Timer Start, Terminate End, the configured Task extension, all three boundary-Timer loci, the preserved-notation profile, and structured Human Work.
+
+For those 27 cases, **one of the two genuinely uncorrelated lanes does not run at all.** What remains is normative/profile review plus three targets that share one XML producer.
+
+This is not a defect, and it is important to be precise about why. Declining to invent a CIB relationship in order to have an oracle is the correct call: a manufactured relationship would be a lane whose failure mode correlates with nothing in particular, and the rule at the top of this section forbids counting it. Each profile records the absence in writing. Several of these families — a project-owned expression language, a project-owned configured-Task extension, an Event-Based Gateway race whose refinement question is about Temporal activation batching — genuinely have nothing for CIB to say.
+
+But it *does* shape the residual, and it explains how the standards-only capsules are evidenced instead. Where an oracle is absent the weight moves to **non-laws, exact closure bounds with paired exhaustion witnesses, hidden-state non-projection theorems, and host-side bypass mutations** — the guards that still work when there is no second reading of the bytes to compare against. [09 category K](09-property-inventory.md#92-proven-today--by-category-with-representatives) is the visible fingerprint of that. It is a reasonable response rather than a substitute: **none of those guards can catch an XML-to-graph misread**, because all of them operate downstream of it.
+
+The honest one-line summary: **the largest part of the project's surface is the part with the weakest independent evidence**, the authority document says so in its second paragraph rather than in a capsule footnote, and the compensating guards are real but address a different failure.
+
+### One large body of green tests that is correctly not counted
+
+Product 2 contributes a great deal of executable evidence — live Temporal showcases composing the production server, Worker, client, and browser; Chromium journeys at two viewport widths; a cross-product agreement test. None of it is a semantic lane, and the platform proposal says so in one sentence: **"No product lane is an independent semantic evidence lane. The platform composes the already-evidenced compiler, program, semantic core, Workflow, and client."**
+
+That is the correlation rule applied to the largest new body of green tests in the repository, by the people who wrote them. It would have been easy and wrong to present a passing browser journey over a real Temporal service as corroboration of the semantics underneath. [18](18-the-bpm-platform.md#what-the-platforms-evidence-actually-establishes) works through what the platform's evidence does establish.
 
 ## The residual, stated plainly
 

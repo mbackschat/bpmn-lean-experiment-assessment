@@ -49,13 +49,13 @@ flowchart TB
 
 **Nothing is parsed inside the Workflow.** Parsing, admission, and lowering run before `workflow.start`, with an explicit byte limit and a parser settlement deadline. The Workflow receives an already-admitted IL program as input. `CLAUDE.md` makes this mandatory: *"Every new Workflow execution must contain the admitted current executable definition; no fallback constructor may invent it."*
 
-**One Workflow Definition hosts every model.** This is the interpreter-not-code-generator choice. A BPMN diagram is *data* interpreted by a generic Workflow, not a generated Workflow class. `TEMPORAL-EXECUTION-RESEARCH.md` flags the alternative as a false equivalence: *"the BPMN model is content-addressed, profile-identified data interpreted by a generic semantic core; a Temporal Workflow Definition is adapter code and may host many admitted models."* One consequence worth appreciating: deploying a new process requires no deployment at all — and it is why ten new operations arrived without a second Workflow.
+**One Workflow Definition hosts every model.** This is the interpreter-not-code-generator choice. A BPMN diagram is *data* interpreted by a generic Workflow, not a generated Workflow class. `TEMPORAL-EXECUTION-RESEARCH.md` flags the alternative as a false equivalence: *"the BPMN model is content-addressed, profile-identified data interpreted by a generic semantic core; a Temporal Workflow Definition is adapter code and may host many admitted models."* One consequence worth appreciating: deploying a new process requires no deployment at all — and it is why a twenty-four-operation IL is hosted by exactly one Workflow Definition.
 
 ## Anatomy of the production Workflow
 
-The production Workflow is `packages/temporal-adapter/src/workflow-implementation.ts` — **536 nonblank lines**. The surrounding package `src` is 7,556 nonblank lines, but nearly all of that is harness, evidence extraction, history decoding, and deliberately-wrong bypass Workflows, not hosting.
+The production Workflow is `packages/temporal-adapter/workflow/src/workflow-implementation.ts` — **561 nonblank lines**, against a twenty-four-operation IL. That ratio is the delegation boundary paying off: mechanisms needing real host machinery get their own modules — `flow-node-occurrence-publication-state.ts`, `execution-publication-state.ts`, `bounded-deadline-scheduler.ts`, `event-race-readiness-scheduler.ts`, `message-delivery-ledger.ts` — while the Workflow itself keeps one shape: *register narrow handlers that only enqueue, then run one loop that owns all state.*
 
-That the Workflow grew only 123 lines while the IL grew from 7 operations to 17 is the delegation boundary paying off. Mechanisms that need real host machinery got their own modules instead — `event-race-readiness-scheduler.ts` (262), `message-delivery-ledger.ts` (162), `host-admission.ts` (115), `user-task-detail.ts` (90) — while the Workflow itself kept one shape: *register narrow handlers that only enqueue, then run one loop that owns all state.*
+Host admission lives one package lower, in `packages/temporal-adapter/protocol/src/host-admission.ts`, which depends on the semantic core and on **no Temporal SDK package at all** — the pre-start capability question is answerable without a client.
 
 ```ts
 // 1 · Admit the input before anything else can observe it.
@@ -85,13 +85,13 @@ while (true) { /* … */ }
 
 The loop body does exactly three things in order: if nothing is queued, it looks at *committed* state to decide whether to await a durable timer, arm a race, invoke an effect Activity, or simply wait for an external command; then it drains the queue through `advanceScenario`, which calls the core; then it checks whether semantic state is terminal and, if so, drains accepted handlers and returns a typed receipt.
 
-Note what is *absent* from that loop: any scenario command list, any count of expected stimuli, any policy decision the core could have made. The adapter *"delegates current projection, stimulus well-formedness, command identity, and same-stimulus comparison to semantic-core operations."* That delegation is the reason the Workflow is 536 lines rather than several thousand.
+Note what is *absent* from that loop: any scenario command list, any count of expected stimuli, any policy decision the core could have made. The adapter *"delegates current projection, stimulus well-formedness, command identity, and same-stimulus comparison to semantic-core operations."* That delegation is the reason the Workflow is 561 lines rather than several thousand.
 
 ## The fourteen challenges
 
 | # | Challenge | Resolution |
 |---|---|---|
-| 1 | Replay demands determinism; an interpreter wants to compute | Pure dependency-free core; hand-rolled deterministic SHA-256; 30 histories replayed every pipeline run |
+| 1 | Replay demands determinism; an interpreter wants to compute | Pure dependency-free core; hand-rolled deterministic SHA-256; 62 histories replayed every pipeline run |
 | 2 | Temporal Events look like a process trace, but are not one | Canonical observations come only from core state; the Event log is never the BPMN trace |
 | 3 | Async handlers interleave and can logically race | Synchronous validators, enqueue-only handlers, one mutating loop |
 | 4 | At-least-once delivery means duplicate commands | Content-bound Update ID over every semantic field, `REJECT_DUPLICATE`, `sameStimulus` conflict detection |
@@ -106,7 +106,7 @@ Note what is *absent* from that loop: any scenario command list, any count of ex
 | 13 | **Two competing catches can become ready in the same activation** | Activation-tagged readiness accumulator behind a drain barrier; dual readiness **fails closed** rather than picking a winner |
 | 14 | **Nested scopes and a called Process look like Child Workflows** | Hosted inside the *same* Workflow through passive Updates; histories asserted to contain zero Child Workflow or cancellation events |
 
-Cross-SDK payload compatibility was challenge 11 in the previous revision. It is no longer imminent — see [the deferred item](#the-one-that-stopped-being-imminent) at the end.
+One problem is conspicuously **not** on that list, and [the deferred item](#the-problem-that-is-deferred-rather-than-solved) at the end explains why: cross-SDK payload compatibility, which a delegated JUEL evaluator would force.
 
 ### Challenge 1 · Determinism and replay
 
@@ -258,11 +258,11 @@ This is the same logical move as a non-law in the Lean lane (see [01](01-theorem
 
 ### Challenge 11 · Host capability is not semantic admission
 
-**New since the previous revision, and the most quietly important of the four.**
+**The most quietly important of the fourteen**, because it is the one where an adapter limitation was in danger of becoming a claim about BPMN.
 
-The previous revision noted a limitation in passing: if committed state ever offered both a timer wait and an effect wait at once, the Workflow raised `BpmnHostWaitAmbiguity` and refused. That was a *runtime* failure discovered at the moment of ambiguity, and it was accidentally protected by whole-topology admission predicates that happened never to admit such a program.
+If committed state offers both a timer wait and an effect wait at once, the host cannot schedule them. For a period that limitation was *accidentally* protected: whole-topology admission predicates simply never admitted such a program, so nobody had to state the rule and the only failure mode was a runtime `BpmnHostWaitAmbiguity` at the moment of ambiguity.
 
-When those predicates were removed, the accident stopped protecting anything. Owner decision 10 named the problem precisely: *"The current Temporal host accepts exactly one committed timer or one committed effect wait at a time and rejects a mixed timer/effect set; this is an adapter limitation accidentally protected by current whole-topology admission, not BPMN meaning."* And it fixed the shape of the answer: *"Violation must be a deterministic pre-start adapter admission result, never a non-retryable Workflow crash."*
+Removing those predicates removed the accident. Owner decision 10 named the problem precisely: *"The current Temporal host accepts exactly one committed timer or one committed effect wait at a time and rejects a mixed timer/effect set; this is an adapter limitation accidentally protected by current whole-topology admission, not BPMN meaning."* And it fixed the shape of the answer: *"Violation must be a deterministic pre-start adapter admission result, never a non-retryable Workflow crash."*
 
 So `host-admission.ts` now answers a *separate question* from semantic well-formedness, before Workflow creation, and the production start API returns typed `started | rejected`. Its own documentation is the clearest statement of the boundary:
 
@@ -273,13 +273,24 @@ So `host-admission.ts` now answers a *separate question* from semantic well-form
  * User Task and Message waits are passive ingress and may coexist. A token
  * split combined with a timer or effect can create more than one host-driven
  * branch, which requires a scheduler that this adapter does not implement.
- * Event-Based Gateway operations retain their own exhaustive class. The host
- * admits one exact Message/PT1S managed race and rejects every composition that
- * would require a second host-driven branch or managed scheduler instance.
+ *
+ * Four operation classes are managed rather than passive, each owning one
+ * scheduler instance: the Event-Based Gateway race, the bounded User Task, the
+ * bounded Sub-Process scope, and the monitored User Task whose deadline spawns
+ * a branch without ending it. The first three race a deadline against an end;
+ * the fourth races it against a withdrawal, which is a different outcome under
+ * the same undefined activation order. The host admits at most one managed
+ * operation across all four classes, so a race
+ * beside a bounded Activity wait is rejected even though each alone is
+ * admissible. Every composition needing a second host-driven branch or a second
+ * managed scheduler is rejected before Workflow start, with one typed code per
+ * class.
  */
 ```
 
-Three things make this good engineering rather than bureaucracy. The classification is **exhaustive over operation kinds**, and mutation-guarded against omitting one — so adding an eighteenth operation forces a host decision rather than defaulting to "probably fine". The distinction it draws is real and not obvious: **passive** ingress (User Task Updates, Message Signals) can coexist freely because the host is not scheduling anything, while **host-driven** waits (timers, effects) cannot, because each needs the loop's attention. And every capsule since must either preserve the bound or build the scheduler — the Inclusive Gateway had to classify `selectMany` as token-splitting and accept that combining it with a timer is rejected as `concurrentHostDrivenWaits`.
+Three things make this good engineering rather than bureaucracy. The classification is **exhaustive over operation kinds**, and mutation-guarded against omitting one — so a twenty-fifth operation forces a host decision rather than defaulting to "probably fine". The distinction it draws is real and not obvious: **passive** ingress (User Task Updates, Message Signals) can coexist freely because the host schedules nothing, while **managed** operations cannot, because each needs its own scheduler instance and the loop's attention. And every capsule must either preserve the bound or build the scheduler — the Inclusive Gateway had to classify `selectMany` as token-splitting and accept that combining it with a timer is rejected as `concurrentHostDrivenWaits`.
+
+**The budget stayed at one as the classes grew from one to four**, and the comment explains why counting per class would be wrong: it would admit a race beside a bounded Activity wait, needing two schedulers the adapter does not run concurrently. So each new boundary locus widens the *set of programs the host accepts one at a time*, never the number that can run at once.
 
 The cost is honest and visible: a general multi-wait scheduler does not exist, several remaining BPMN mechanisms will need one, and the adapter says so in a typed pre-start result instead of finding out later.
 
@@ -303,7 +314,7 @@ The Receive Task capsule then reused all of it. Same Signal, same ledger, same W
 
 ### Challenge 13 · Coalesced readiness — the one that fails closed
 
-**The hardest problem in the four days, and the answer is a refusal.**
+**The hardest problem the adapter faces, and the answer is a refusal.**
 
 An Event-Based Gateway arms competing catches — here one operation-addressed Message and one `PT1S` Timer — and exactly one must win. Challenge 6's argument that physical lateness is invisible depended on there being nothing to race against. Now there is.
 
@@ -337,7 +348,7 @@ Why refuse the obvious mapping? Because a Child Workflow would give the called P
 
 ## The runnable product command
 
-New in this window, and the first thing in the repository a user could plausibly *run*: one command-line runtime that connects to a **caller-supplied** Temporal address, starts a Worker for the generic BPMN Workflow, admits exact BPMN XML before Workflow creation, starts one semantic Process instance, and waits until it completes.
+The engine's own product surface is one command-line runtime that connects to a **caller-supplied** Temporal address, starts a Worker for the generic BPMN Workflow, admits exact BPMN XML before Workflow creation, starts one semantic Process instance, and waits until it completes.
 
 The boundary discipline is the notable part. The command *"does not start an embedded or ephemeral Temporal server, choose frontend ports, or bind a server port"* — a connection failure reports the supplied address and stays an infrastructure failure. It uses the *same* source compiler, IL program, semantic core, production Workflow, and Update boundary as the evidence path; a model-specific Workflow or generated file is explicitly *"not an MVP shortcut"*. And an unsupported document returns typed pre-start admission rejection **without opening a connection**.
 
@@ -362,16 +373,18 @@ The pre-release absences are the load-bearing ones for portability, and [08](08-
 
 ## The exact refinement claim
 
-**Established:** for the 28 answer-free scenarios, the durable host preserves the pure core's canonical observations under ordered, duplicate, concurrent, post-terminal, Worker-down-at-timer-due, Worker-down-at-effect-pending, Worker-down-in-both-race-winner-directions, and Worker-replacement-after-committed-throw schedules; **56 isolated executions and 30 replayed histories** are green; the timer, Signal, Activity, receipt, and Update mechanisms are asserted in Event History with exact counts, and the *absence* of Child Workflow and cancellation events is asserted where the claim requires it; a dozen bypass mutations fail as required, including two that attack a premise rather than a value.
+**Established:** for the 51 answer-free scenarios, the durable host preserves the pure core's canonical observations under ordered, duplicate, concurrent, post-terminal, Worker-down-at-timer-due, Worker-down-at-effect-pending, Worker-down-in-both-race-winner-directions, Worker-replacement-after-committed-throw, and Worker-replacement-while-an-incident-is-open schedules; **102 isolated Workflow executions and 62 replayed histories** are green; the timer, Signal, Schedule, Activity, receipt, Update, and publication mechanisms are asserted in Event History with exact counts, and the *absence* of Child Workflow and cancellation events is asserted where the claim requires it; a dozen bypass mutations fail as required, including several that attack a premise rather than a value.
+
+*Those two totals are derived rather than published: the catalog holds 51 cases at two isolated Temporal executions each, and its `replaySelection` fields resolve to 40 primary-only plus 11 primary-and-isolation replays. The generated pipeline report is the authority.*
 
 **Not established:** refinement as a theorem. There is no Temporal-correspondence proof and none is planned — the reason given is that host concerns are deliberately kept out of the semantic account. Refinement is evidenced by replay and history checks over a finite scenario set, and the phrase used throughout is *"the tested durable host"*, not "the adapter".
 
-The distinction is not pedantic, and challenge 13 is the proof that it matters. Every property here holds for schedules the gate actually runs. When a genuinely new schedule arrived — two competitors ready in one activation — the honest answer was not "our refinement argument covers it" but a new mechanism, a new typed failure, and a mutation against the SDK premise the argument now rests on. The adapter's position is that it has solved fourteen named problems on a bounded set of executions, and that the fifteenth is always the one you did not schedule.
+The distinction is not pedantic, and challenge 13 is the proof that it matters. Every property here holds for schedules the gate actually runs. When a genuinely new schedule arrives — two competitors ready in one activation — the honest answer is not "our refinement argument covers it" but a new mechanism, a new typed failure, and a mutation against the SDK premise the argument now rests on. The adapter's position is that it has solved fourteen named problems on a bounded set of executions, and that the fifteenth is always the one you did not schedule.
 
-## The one that stopped being imminent
+## The problem that is deferred rather than solved
 
-Challenge 11 in the previous revision was **cross-SDK payload compatibility**: the approved Exclusive Gateway capsule was to put a Java Activity Worker on a dedicated task queue, because the pinned CIB JUEL runtime is Java and cannot run in the TypeScript Workflow sandbox.
+**Cross-SDK payload compatibility** would arrive with a delegated JUEL evaluator: the pinned CIB JUEL runtime is Java and cannot run in the TypeScript Workflow sandbox, so it needs a Java Activity Worker on a dedicated task queue and a wire contract both SDKs agree on.
 
-That did not happen. Conditional routing shipped with a project-owned five-form Boolean language evaluated *inside* pure core closure — *"without an evaluator Activity or expression-specific Temporal Event"* — and JUEL was deferred with its 38-jar dependency graph audited and unadopted. The Java Worker, the wire contract, and the cross-SDK evidence obligation are all still absent, and so are the two related open items: the deployment-time validation transport (Temporal cannot invoke an Activity outside a Workflow) and the disposition of a suspended evaluation after exhausted attempts.
+None of that exists. Conditional routing is implemented with a project-owned five-form Boolean language evaluated *inside* pure core closure — *"without an evaluator Activity or expression-specific Temporal Event"* — and JUEL is deferred with its 38-jar dependency graph audited and unadopted. The Java Worker, the wire contract, and the cross-SDK evidence obligation are all absent, and so are two related open items: the deployment-time validation transport (Temporal cannot invoke an Activity outside a Workflow) and the disposition of a suspended evaluation after exhausted attempts.
 
-Those problems are real and will return with any CIB expression-compatibility claim. They are simply not on the adapter's plate today, and the previous revision was wrong to present them as the next thing to be solved ([12 §7](12-corrections-log.md#7--implementation-is-blocked-on-approval-of-three-java-dependencies--void)).
+Those problems are real and return with any CIB expression-compatibility claim. They are simply not on the adapter's plate, and the reason is worth generalising: choosing a language small enough to transcribe twice removed a whole cross-runtime integration as a side effect of a semantics decision.

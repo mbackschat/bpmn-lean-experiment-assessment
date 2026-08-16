@@ -4,7 +4,7 @@
 
 For *how the TypeScript core is authored and checked*, see [06](06-typescript-core-correctness.md). This document covers what it **is** and what the IL between it and BPMN looks like.
 
-## The four packages and the flow
+## The packages and the flow
 
 ```text
 exact BPMN XML bytes
@@ -24,22 +24,35 @@ CheckedProcess ──────────────► Semantic Process IL
 
 | Package | Nonblank `src` | Nonblank tests | Owns |
 |---|---:|---:|---|
-| `@bpmn-lean/bpmn-source` | 4,543 | 2,683 | `bpmn-moddle`, byte capture, admission, lowering to the IL |
-| `@bpmn-lean/semantic-core` | 6,158 | 6,070 | the meaning: state, transitions, closure, observations |
-| `@bpmn-lean/temporal-adapter` | 7,556 | 8,223 | durable hosting (536 of those `src` lines are the production Workflow) |
-| `@bpmn-lean/differential` | 291 | 3,949 | orchestrating the multi-target comparison |
+| `@bpmn-lean/bpmn-source` | 9,706 | 10,178 | `bpmn-moddle`, byte capture, admission, lowering to the IL |
+| `@bpmn-lean/semantic-core` | 13,092 | 14,796 | the meaning: state, transitions, closure, observations |
+| `@bpmn-lean/engine-api` | 2,236 | 1,464 | the narrowed public entry points Product 2 may consume |
+| `@bpmn-lean/differential` | 291 | 6,645 | orchestrating the multi-target comparison |
 
-All four roughly doubled in four days. The ratio worth watching is `differential`: 291 lines of source against 3,949 of test, because its "source" is a thin catalogue and its substance is the comparison matrix itself.
+Nonblank counts over the tracked tree at the baseline commit. The ratio worth watching is `differential`: 291 lines of source against 6,645 of test, because its "source" is a thin catalogue and its substance *is* the comparison matrix.
 
-Dependency direction is strict: `bpmn-source`, `temporal-adapter`, and `differential` all depend on `semantic-core`; **`semantic-core` depends on nothing.** Verifiably — `rg -n "temporalio|bpmn-moddle|node:" packages/semantic-core/src/` returns nothing, not even a Node built-in.
+**Temporal hosting is no longer one package.** `packages/temporal-adapter/` is a subsystem directory of six independently built workspace packages with no production umbrella export, split along real execution environments rather than along layers:
 
-Note the CIB branch carefully. It consumes **exact bytes only**: CIB Seven *"does not consume the Semantic Process IL and does not define its structure."* That is what keeps the oracle's failure mode uncorrelated with the IL's. If CIB read the IL, a lowering bug could make both agree on the wrong answer, and the oracle would stop being independent evidence. It is also, per [02](02-evidence-and-lanes.md#but-the-decorrelation-is-narrower-than-that-diagram-suggests), the *only* lane that can catch an XML-to-graph misread — and it is deliberately absent for 10 of the 28 registered cases.
+| Package | Nonblank `src` | Owns |
+|---|---:|---|
+| `protocol` | 3,539 | Temporal-facing contracts, identity, transport, host admission — depends on the semantic core but on **no** Temporal SDK package |
+| `client` | 2,460 | start, Query, Signal, Update, retained-result resolution; owns `@temporalio/client` |
+| `workflow` | 3,390 | the deterministic Workflow and its schedulers; owns `@temporalio/workflow` |
+| `worker` | 189 | bundling, Worker lifecycle, Activity hosting |
+| `runner` | 669 | the product command's composition and entry points |
+| `testkit` | 7,548 | ephemeral servers, mutations, calibration, evidence — owns `@temporalio/testing`, excluded from production graphs |
+
+The split is what lets Product 2 consume the client boundary without pulling Worker and test infrastructure into its server's dependency closure, and an executable guard enforces the exact internal and SDK dependency direction. Note the size of `testkit` against everything else: **the deliberately-wrong Workflows, ephemeral servers, and evidence extraction are larger than all five production packages combined**, which is what the evidence discipline in [02](02-evidence-and-lanes.md) costs when you actually pay for it.
+
+Dependency direction is strict: `bpmn-source`, the adapter packages, `engine-api`, and `differential` all depend on `semantic-core`; **`semantic-core` depends on nothing.** Verifiably — `rg -n "temporalio|bpmn-moddle|node:" packages/semantic-core/src/` returns nothing, not even a Node built-in.
+
+Note the CIB branch carefully. It consumes **exact bytes only**: CIB Seven *"does not consume the Semantic Process IL and does not define its structure."* That is what keeps the oracle's failure mode uncorrelated with the IL's. If CIB read the IL, a lowering bug could make both agree on the wrong answer, and the oracle would stop being independent evidence. It is also, per [02](02-evidence-and-lanes.md#but-the-decorrelation-is-narrower-than-that-diagram-suggests), the *only* lane that can catch an XML-to-graph misread — and it is deliberately absent for 27 of the 51 registered cases.
 
 ## The semantic core: responsibility in one sentence
 
 **It is a pure function from (immutable program, runtime state, one explicit stimulus) to (new state, outcome), plus the canonical projections over that state.** No I/O, no clock, no host, no parser.
 
-The central signature, unchanged in shape after six capsules:
+The central signature, whose shape has survived every capsule closed against it:
 
 ```ts
 applyStimulus(
@@ -56,37 +69,32 @@ applyStimulus(
 // }
 ```
 
-Everything else is arranged around that one step. The core is now 28 modules; the ones that carry the contract are:
+Everything else is arranged around that one step. The core is **62 modules**; the ones carrying the contract:
 
 | File | Nonblank | Owns |
 |---|---:|---|
-| `semantic-process-runtime.ts` | 595 | `applyStimulus`, `applyInternalOperation`, internal closure, the fuel-8 bound, `isStableStateResumable` |
-| `semantic-process-contract.ts` | 506 | the checked-graph and IL program types — the 17-arm operation union lives here |
-| `semantic-process-graph-admission.ts` | 416 | topology-independent structural validity: reference, arity, ownership, reachability, acyclicity |
-| `semantic-process-operation-admission.ts` | 403 | per-operation-kind admission, separated from graph shape |
-| `scenario.ts` | 399 | `projectOpenUserTasks` / `projectOpenTimers` / `projectOpenEffects` / subscription projection, `advanceScenario`, `deployProcess`, `runScenario` |
-| `semantic-process-profile.ts` | 383 | profile capability: which mechanism kinds and cardinalities this profile admits |
-| `semantic-process-state.ts` | 346 | `RuntimeState`, `ScopedVariables`, token / wait / occurrence primitives |
-| `stimulus.ts` | 323 | `stimulusCommandId`, `sameStimulus`, `isWellFormedStimulus`, `isWellFormedEffectExecutionResult` |
-| `semantic-process-call-runtime.ts` | 316 | called-Process invocation, return, and cleanup |
-| `semantic-process-event-race-runtime.ts` | 315 | atomic arming, winner selection, loser withdrawal |
-| `contract.ts` | 225 | wire vocabulary — `Stimulus` union, `VariableValue`, `ActiveWait`, `StateObservation`, `CanonicalObservation` |
-| `semantic-process-data.ts` | 199 | scoped mapping evaluation, scope creation and cleanup |
-| `semantic-process-scope-runtime.ts` | 167 | scope entry, quiescence, child completion, outer continuation |
-| `effect-transport-material.ts` | 48 | `projectEffectTransportMaterial` — what the adapter is *allowed* to see |
-| `deep-readonly.ts` | 13 | the project-wide deep-immutability utility |
+| `semantic-process-runtime.ts` | 562 | `applyStimulus`, `applyInternalOperation`, internal closure, the fuel-8 bound, `isStableStateResumable` |
+| `flow-node-occurrence-open-set.ts` | 557 | the open occurrence set behind flow-node metrics |
+| `flow-node-occurrence-lifecycle.ts` | 554 | exact starts and completed-or-cancelled terminals at the evaluator boundary |
+| `semantic-process-graph-admission.ts` | 530 | topology-independent structural validity: reference, arity, ownership, reachability, acyclicity |
+| `scenario.ts` | 525 | canonical projections, `advanceScenario`, `deployProcess`, `runScenario` |
+| `semantic-process-operation-admission.ts` | 476 | per-operation-kind admission, separated from graph shape |
+| `control-position-projection.ts` | 416 | independent current control and scope positions for the publication contract |
+| `semantic-process-contract.ts` | 401 | the checked-graph and IL program types — the 24-arm operation union lives here |
+| `stimulus.ts` | 370 | `stimulusCommandId`, `sameStimulus`, `isWellFormedStimulus`, `isWellFormedEffectExecutionResult` |
+| `semantic-process-state.ts` | 366 | `RuntimeState`, `ScopedVariables`, token / wait / occurrence primitives |
+| `effect-transport-material.ts` | small | `projectEffectTransportMaterial` — what the adapter is *allowed* to see |
+| `deep-readonly.ts` | small | the project-wide deep-immutability utility |
 
-Two things to read out of that list.
+Three things to read out of that list.
 
-**The split is by responsibility, not by size.** Admission is three separate files — graph shape, operation kind, profile capability — because those are three different questions with three different owners, and the [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) exists precisely to keep them apart. Each mechanism with hidden runtime state got its own runtime module (`-call-runtime`, `-event-race-runtime`, `-scope-runtime`, `-error-runtime`, `-inclusive-gateway-runtime`) rather than growing `semantic-process-runtime.ts`. The project's hygiene gate enforces a 600-line review target and a 1,000-line hard ceiling, and `semantic-process-runtime.ts` at 595 is the closest file to that target — visible pressure that the split is doing work.
+**The split is by responsibility, not by size.** Admission is three separate files — graph shape, operation kind, profile capability — because those are three different questions with three different owners, and the [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) exists precisely to keep them apart. Each mechanism with hidden runtime state has its own runtime module (`-call-runtime`, `-event-race-runtime`, `-scope-runtime`, `-error-runtime`, `-inclusive-gateway-runtime`, `-incident-runtime`, `-termination-runtime`, `-monitored-task-runtime`, `-bounded-scope-runtime`, `-bounded-task-runtime`) rather than growing `semantic-process-runtime.ts`. The hygiene gate enforces a 600-line review target and a 1,000-line hard ceiling; the largest core module sits at 562, which is visible pressure that the split is doing work.
 
-**The `stimulus.ts` / `effect-transport-material.ts` group is an architectural decision made concrete.** Those functions exist so the Temporal Workflow **asks** the core rather than reimplementing policy. `IMPLEMENTATION-MAP.md` records that the adapter delegates *"current projection, stimulus well-formedness, command identity, and same-stimulus comparison"* to core operations. Two consequences: the adapter cannot drift from core policy, and the production Workflow stayed at 536 lines while the IL grew from 7 operations to 17.
+**Four of the twelve largest modules exist to serve a downstream product.** `flow-node-occurrence-*` and `control-position-projection` are there because Product 2 needs history, diagram overlays, and metrics, and is forbidden to derive them from Temporal Event History ([18](18-the-bpm-platform.md#the-four-operations-and-the-two-rules-that-make-the-assurance-transfer)). That is the "missing fact is a stop condition" rule showing up as roughly two thousand lines inside the semantic core rather than as a shortcut in the platform.
 
-> **⚠ A prediction this document got wrong.** The previous revision noted that `CommandResult.outcome` is narrowed to `Committed | Rejected` while the wire enum has five members, and said *"the approved Exclusive Gateway capsule needs `rolledBack`, so this is the next place the TypeScript signature will have to widen."*
->
-> It did not widen. `SemanticCommandOutcome` is still two arms, and six further capsules closed without touching it. Rollback was a property of the *delegated* JUEL design — a speculative continuation awaiting an external receipt — not of conditional routing as such. When conditional routing shipped as a pure total evaluator, there was nothing to roll back. See [12 §9](12-corrections-log.md#9--the-exclusive-gateway-needs-rolledback-so-the-typescript-result-type-must-widen--void).
->
-> The narrowing itself is still the right design and still means what it meant: the core refuses to express host or harness failure through a semantic channel. Lean models all five arms plus an `ambiguousInternalChoice` flag — see [06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts).
+**The `stimulus.ts` / `effect-transport-material.ts` group is an architectural decision made concrete.** Those functions exist so the Temporal Workflow **asks** the core rather than reimplementing policy. `IMPLEMENTATION-MAP.md` records that the adapter delegates *"current projection, stimulus well-formedness, command identity, and same-stimulus comparison"* to core operations. Two consequences: the adapter cannot drift from core policy, and the production Workflow is **561 nonblank lines** while the IL carries 24 operations.
+
+**One narrowing is deliberate and worth understanding**, because it looks like an omission. `CommandResult.outcome` admits only `Committed | Rejected`, while the wire enum has five members and Lean models all five plus an `ambiguousInternalChoice` flag. The core refuses to express host or harness failure through a semantic channel: a closure-bound overrun is a harness failure, a post-closure command is an adapter-owned lifecycle result, and neither is a BPMN outcome. The two-arm union has survived every capsule since it was written — see [06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts) for what the asymmetry with Lean costs.
 
 ## What the IL is, and why it is not a BPMN mirror
 
@@ -96,25 +104,32 @@ Two artefacts, both immutable, both content-bound to the source's SHA-256 digest
 
 **`SemanticProcessProgram`** — `controlPlaces` plus `operations` plus its own definition-scope forest, and **no mutable state at all**.
 
-Seventeen operation kinds, as a closed discriminated union:
+**Twenty-four operation kinds**, as a closed discriminated union — the count is from `SemanticOperationKind`, cross-checked against the `operation` union in `contracts/schemas/semantic-process.schema.json`:
 
 ```ts
 export enum SemanticOperationKind {
   Initiate = "initiate",                            // control
+  InitiateMessage = "initiateMessage",              // control
+  InitiateTimer = "initiateTimer",                  // control
   EnterScope = "enterScope",                        // scope
+  EnterBoundedScope = "enterBoundedScope",          // scope
   InvokeProcess = "invokeProcess",                  // scope
   ReturnProcess = "returnProcess",                  // scope
   AwaitUserTask = "awaitUserTask",                  // interaction
+  AwaitBoundedUserTask = "awaitBoundedUserTask",    // interaction
+  AwaitMonitoredUserTask = "awaitMonitoredUserTask",// interaction
   AwaitMessage = "awaitMessage",                    // subscription
   AwaitTimer = "awaitTimer",                        // subscription
   AwaitEffect = "awaitEffect",                      // effects
   Duplicate = "duplicate",                          // control
   Synchronize = "synchronize",                      // control
+  MergeExclusive = "mergeExclusive",                // control
   Choose = "choose",                                // control
   SelectMany = "selectMany",                        // control
   SynchronizeSelected = "synchronizeSelected",      // control
   AwaitEventRace = "awaitEventRace",                // subscription
   ThrowError = "throwError",                        // propagation
+  TerminateScope = "terminateScope",                // propagation
   ReachNoneEnd = "reachNoneEnd",                    // control
   CompleteScope = "completeScope",                  // scope
 }
@@ -126,39 +141,46 @@ The lowering table:
 |---|---|
 | Sequence Flow | `ControlPlace` |
 | none Start Event (root) | `initiate` |
+| Message Start Event | `initiateMessage` |
+| Timer Start Event | `initiateTimer` |
 | none Start Event (child scope) | *entry structure* — becomes part of `enterScope`, **not** a second initiation |
 | User Task | `awaitUserTask` |
+| User Task with an interrupting boundary Timer | `awaitBoundedUserTask` |
+| User Task with a non-interrupting boundary Timer | `awaitMonitoredUserTask` |
 | exact `PT1S` Intermediate Catch Timer | `awaitTimer` (`durationMs: 1000`) |
 | Intermediate Catch Message Event | `awaitMessage` (`operationMessage` channel) |
 | Receive Task | `awaitMessage` (`directMessage` channel) |
-| exact Service Task binding | `awaitEffect` |
+| exact Service Task binding, and the configured Task extension | `awaitEffect` |
 | diverging Parallel Gateway | `duplicate` |
 | converging Parallel Gateway | `synchronize` |
+| converging identity-only Exclusive Gateway | `mergeExclusive` |
 | diverging Exclusive Gateway with conditions | `choose` |
 | diverging Inclusive Gateway | `selectMany` |
 | converging Inclusive Gateway | `synchronizeSelected` |
 | diverging Event-Based Gateway | `awaitEventRace` |
 | embedded Sub-Process | `enterScope` + `completeScope` |
+| embedded Sub-Process with an interrupting boundary Timer | `enterBoundedScope` + `completeScope` |
 | Call Activity | paired `invokeProcess` + `returnProcess` |
 | Error End Event with a resolved handler | `throwError` |
+| Terminate End Event | `terminateScope` |
 | none End Event | `reachNoneEnd` |
 
 **One BPMN element class does not get one opcode, and one opcode is not one element class.** Three quite different Service Task bindings — a payload-free probe, an A12-shaped `CreateDocument` with data mappings, and one with an attached interrupting Error route — all lower to the *same* `awaitEffect`, differing only in payload. Two quite different BPMN constructs, an Intermediate Catch Message Event and a Receive Task, lower to the same `awaitMessage` and differ only in the channel arm of one closed `operationMessage | directMessage` union. That is the design rule: *"a small language of semantic mechanisms rather than a mirror of BPMN element classes."*
 
 The channel union is worth pausing on as the clearest instance. When the Receive Task capsule arrived it could have added a second wait operation. Instead it replaced `MessageChannel` **atomically** with a closed two-arm union across TypeScript, Lean, all three wire schemas, Java, the artefacts, and Temporal command identity — one pre-release replacement, no parallel reader, no compatibility switch. The differential mutation that guards it substitutes the *complete opposite arm* and requires the pre-delivery Query to diverge, the exact direct delivery to reject, and only the substituted arm to complete. That is what "the same mechanism, not the same code path" has to mean to be worth anything.
 
-### The `terminate` → `reachNoneEnd` + `completeScope` replacement
+### Why there is no `terminate` operation
 
-The previous revision's operation table listed `terminate`. It is gone, and its removal is the single most instructive change in the IL's history.
+The IL once had one, and its removal is the single most instructive thing in the language's design.
 
 `terminate` conflated two things that are only the same in a single-scope world: *a none End Event was reached* and *this scope is finished*. Once one level of embedded Sub-Process existed, a child's End Event must not end the Process, and a child scope must complete only when its owned region has no token, no wait, and no child occurrence. So `reachNoneEnd` records the end occurrence and `completeScope` fires **only on quiescence**, removing the child and emitting exactly one parent-owned continuation.
 
 Read against the IL's own kill-switch criteria, this is the interesting part: the fix was not to add a flag to `terminate` or a second `terminateChild` opcode. It was to notice that one opcode was two mechanisms and split it — which is exactly the *"no universal `event` operation with a bag of flags"* rule applied to an operation that already existed. The specification explicitly forbids the alternatives: no bag of flags, no duplicating the BPMN metamodel as opcodes, no erasing distinctions merely because two constructs look similar in one test case.
 
-### The effect descriptor is neutral — and it was not always
+### The effect descriptor is neutral
 
 ```ts
-// packages/semantic-core/src/semantic-process-contract.ts — current
+// packages/semantic-core/src/semantic-process-contract.ts
 export const EffectProtocol = {
   Activity: "urn:bpmn-lean:effect-protocol:activity-v1",
 } as const;
@@ -170,9 +192,9 @@ export const EffectOperation = {
 } as const;
 ```
 
-Independent review had found A12 delegate bean names (`createDocumentDelegate`, …), A12 data shapes (`documentModelName`, `myDocumentReference`, …), and `namespace: "http://camunda.org/schema/1.0/bpmn"` embedded as literal types in this file and enforced as admission predicates — with the bean-name table mirrored in Lean's production `Lowering.lean`. That violated a stated non-negotiable boundary. Commit `b0a4002` replaced them with profile-registered opaque identities; in Lean the A12 vocabulary survives only inside capsule *conformance fixtures*, which is the correct place for it.
+Profile-registered opaque URNs, and nothing else. No A12 delegate bean name, no A12 data shape, no `http://camunda.org/schema/1.0/bpmn` namespace literal appears here or in Lean's production `Lowering.lean` — that vocabulary survives only inside capsule *conformance fixtures*, which is the correct place for it. Source and profile admission normalises an admitted binding to one of these identities, validated as a safe string, before anything downstream sees it.
 
-**The predicted payoff has now been observed rather than merely predicted.** The reviewer's argument was that widening a vendor-neutral capsule would stop requiring edits to a closed union of product bean names. Six capsules have since closed and **none of them touched the effect descriptor.**
+**Why this matters more than it looks.** The tempting design is a closed union of the product bean names you currently support, because it type-checks the exact set you have and reads as tight. It also means every vendor-neutral capsule that widens the effect surface edits a table of someone else's product vocabulary, and the layering rule in [00](00-background.md#four-layers-with-one-way-dependency) is violated the moment it does. The observable payoff of the neutral form is that **roughly twenty capsules have closed without touching the descriptor at all** — which a bean-name union could not have delivered.
 
 ## Worked example — what lowering actually produces
 
@@ -209,7 +231,7 @@ def sequentialProgram : Program :=
 
 Things to read out of this:
 
-- **The program is not written down.** It is `lowerCheckedProcess` applied to the graph, so every theorem about `sequentialProgram` is a theorem about the *lowering function's output*, not about a hand-copied literal that could drift from it. The previous revision quoted the program as a literal; that literal no longer exists, and its disappearance closed a small but real transcription risk.
+- **The program is not written down.** It is `lowerCheckedProcess` applied to the graph, so every theorem about `sequentialProgram` is a theorem about the *lowering function's output* rather than about a hand-copied literal that could drift from it. Writing the program out as a literal would be a small but real transcription risk, and the fixture deliberately avoids it.
 - **Ownership is explicit even when there is only one scope.** A single-Process model still declares a root definition scope and maps every node and flow into it. The uniform shape is why adding a child scope was a *replacement* rather than a special case.
 - **Nodes are sorted by identifier** — `EndEvent_1` before `StartEvent_1` — which is serialisation, not execution order. Execution order is a runtime consequence of tokens. (This sorting is load-bearing in a way that is easy to miss: it is why the two implementations' different internal-step selectors currently coincide — see [06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts).)
 - **The source digest travels with the graph**, so no derived artefact can drift from the bytes it came from.
@@ -258,19 +280,17 @@ That third sentence is the most important one in the specification and the easie
 
 **It contains its own kill switch, and the criteria are specific.** Nine "stop and reconsider" conditions, including *"the IL becomes a wrapper that selects an old topology evaluator"* and *"a new opcode mirrors a BPMN surface class without a reusable semantic mechanism"*, plus a standing instruction: if a condition is violated, *"stop and reconsider the boundary rather than preserve the name 'IL' around an unsuitable representation."* The whole design is written against a named prior failure — a rejected "A12 Core IL" proposal — with its *decision criteria* transposed rather than its architecture.
 
-**The growth rules had their first real test, and the result was undramatic in a way worth reporting.** The previous revision predicted that `choose` would be the first stress test, because *"`choose` needs the core to suspend mid-command and resume on a validated receipt, which neither `awaitEffect` nor any existing operation does."* With the standards-first total evaluator, there is nothing to suspend; `choose` consumes one token and produces exactly one selected route inside ordinary bounded closure. The prediction was void ([12 §8](12-corrections-log.md#8--choose-needs-the-core-to-suspend-mid-command-and-resume-on-a-receipt--void)).
-
-Ten operations were added in four days and the growth rules held for all of them, in the sense the rules actually claim: each was classified by *mechanism* first — trigger source, catching or throwing, locus, interrupting behaviour, scope ownership, subscription cardinality, correlation, lifecycle — and each landed in a named layer. The layer inventory is now:
+**The growth rules hold across all twenty-four operations, in the sense the rules actually claim.** Each is classified by *mechanism* first — trigger source, catching or throwing, locus, interrupting behaviour, scope ownership, subscription cardinality, correlation, lifecycle — and each lands in a named layer:
 
 | Layer | Operations |
 |---|---|
-| control | `initiate`, `duplicate`, `synchronize`, `choose`, `selectMany`, `synchronizeSelected`, `reachNoneEnd` |
-| interaction | `awaitUserTask` |
+| control | `initiate`, `initiateMessage`, `initiateTimer`, `duplicate`, `synchronize`, `mergeExclusive`, `choose`, `selectMany`, `synchronizeSelected`, `reachNoneEnd` |
+| interaction | `awaitUserTask`, `awaitBoundedUserTask`, `awaitMonitoredUserTask` |
 | subscription | `awaitMessage`, `awaitTimer`, `awaitEventRace` |
-| scope | `enterScope`, `completeScope`, `invokeProcess`, `returnProcess` |
-| propagation | `throwError` |
+| scope | `enterScope`, `enterBoundedScope`, `completeScope`, `invokeProcess`, `returnProcess` |
+| propagation | `throwError`, `terminateScope` |
 | effects | `awaitEffect` |
 
-The previous revision's "control plus a thin effects layer" is now five layers plus effects. The two that did not exist before — **scope** and **propagation** — are the ones the feasibility question in [04](04-feasibility.md) was really about, and they arrived by replacing `terminate` rather than by wrapping it.
+**The three interaction operations are where the growth rules are under the most strain, and it is worth being honest about it.** `awaitUserTask`, `awaitBoundedUserTask`, and `awaitMonitoredUserTask` are the same BPMN element with different boundary attachments, and the IL's own rule forbids *"a new opcode that mirrors a BPMN surface class without a reusable semantic mechanism"*. The defence is that each is a genuinely different transition family — one waits, one races a deadline against its own completion, one spawns a branch without ending its host — and the host classifies all three as distinct managed classes. That defence is sound and it is also exactly the argument a fourth boundary locus would make.
 
 **Where the next real stress test lies** is therefore not the operation count. It is *repetition*: every scope operation today assumes at most one level, one activation, and no re-entry. `enterScope` has a `childScopeId`; nothing in the shape prevents a second occurrence of the same child, but every law and closure bound assumes there is not one. Loops and multi-instance Activities are where the growth rules meet a case the current shape genuinely does not cover.

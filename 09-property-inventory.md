@@ -2,7 +2,7 @@
 
 *What is actually proven today, grouped by category with named representatives, and what the plan is to extend it.*
 
-The generated statistics at this commit count **327 public theorem declarations** and 26 supporting lemmas across 13,972 lines of Lean. This inventory names representatives, not every theorem.
+The repository's generated publication statistics count **815 public theorem declarations** and **93 supporting lemmas** among 2,974 declaration commands, across 28,795 lines of Lean code. This inventory names representatives, not every theorem.
 
 ## 9.1 The shape of the inventory
 
@@ -33,9 +33,9 @@ flowchart TB
     DONE ==> GAP
 ```
 
-Categories A–D form a *chain*: bytes decode correctly, the decoded structure is valid, translation preserves meaning, and execution respects the rulebook. Categories E–I and K are the *content* — what the engine actually does. Category J is the missing link that would connect the BPMN-level account to the program-level account universally rather than per-fixture; as of 30 July 2026 it is no longer a prerequisite for anything. See [03](03-is-lean-goal-driven.md).
+Categories A–D form a *chain*: bytes decode correctly, the decoded structure is valid, translation preserves meaning, and execution respects the rulebook. Categories E–I and K are the *content* — what the engine actually does. Category J is the missing link that would connect the BPMN-level account to the program-level account universally rather than per-fixture; by owner decision it gates nothing. See [03](03-is-lean-goal-driven.md).
 
-**Category K is new in this revision** and is the visible fingerprint of the targeted preservation gate. Every capsule that closed under that gate had to state its exact closure step count rather than inherit a bound, so a family of small, sharp theorems appeared that did not exist before.
+**Category K is the visible fingerprint of the targeted preservation gate.** Every capsule closing under that gate must state its exact closure step count rather than inherit a bound, which produces a family of small, sharp theorems that a project without such a gate would not have.
 
 ## 9.2 Proven today — by category, with representatives
 
@@ -141,7 +141,7 @@ The family grew a new sub-shape with the scope capsules: **non-resumability** wi
 | positional-lowering countermodel | pairing task inputs/outputs by list position instead of by endpoint |
 | `non_call_profile_reusing_invoke_does_not_inherit_empty_start_data` | a profile inheriting another profile's data restriction merely by reusing its operation |
 
-That last row is subtle and worth reading twice. It refutes a *cross-profile* leak: reusing `invokeProcess` must not silently import the Call profile's empty-start-data rule. As operations get reused across profiles — which is the entire point of the IL — this becomes a whole defect class, and it now has a compiled counterexample.
+That last row is subtle and worth reading twice. It refutes a *cross-profile* leak: reusing `invokeProcess` must not silently import the Call profile's empty-start-data rule. As operations get reused across profiles — which is the entire point of the IL — this is a whole defect class, and it has a compiled counterexample.
 
 **H · Observation contract** — what the outside world sees.
 
@@ -152,7 +152,7 @@ That last row is subtle and worth reading twice. It refutes a *cross-profile* le
 | hidden-state non-projection theorems (Inclusive, Event race, Call) | finite locks | selected-branch records, races, and call records never enter the canonical observation |
 | verifier-side raw-binding tests | executable checks | canonical status, logical time, variables, and instance identity are each derived from a raw producer observation, not asserted |
 
-The second row was the most-corrected item in this whole record and is now the most instructive. It began as a theorem whose *name* claimed more than its one-wait-per-kind fixture could establish; the name was fixed first, then the claim was made conditional with an explicit reopen trigger, and then — when the Message kind arrived and fired that trigger — the fixture grew to four kinds with a deliberately reverse-ordered same-kind pair and Lean's projection gained a per-kind element-ID sort. Three revisions to get one ordering rule genuinely locked. Full account in [01 §1.10](01-theorem-techniques.md#110-refusing-to-let-collection-order-become-semantics) and [12 §3](12-corrections-log.md#3--active_wait_projection_orders_by_kind_then_element_id-locks-kind-then-element-ordering--now-fully-resolved-in-code).
+The second row is the most instructive in the table, because it is a lock that had to be *earned* rather than asserted. Its fixture carries four wait kinds plus a deliberately reverse-ordered same-kind pair, so it discriminates both halves of the ordering rule; a one-wait-per-kind fixture would let a theorem of the same name establish only half of what it claims. Full account in [01 §1.10](01-theorem-techniques.md#110-refusing-to-let-collection-order-become-semantics).
 
 **I · Order independence** — collection order must not become scheduling.
 
@@ -177,18 +177,18 @@ The second row was the most-corrected item in this whole record and is now the m
 | `start_closure_is_exactly_three_steps`, `called_completion_closure_is_exactly_three_steps`, `caller_completion_closure_is_exactly_two_steps` | finite locks | Call Activity's 3/3/2 profile, per transition |
 | bounded post-patch closure (completion data) | finite lock | committing task data does not lengthen closure |
 
-Why these matter more than they look: the fuel limit of 8 is a *shared* constant, so a capsule that quietly used 7 steps would leave one step of headroom for the whole system. Pinning the exact figure per mechanism converts a global safety net into a per-capsule budget, and the paired *exhaustion* witnesses prove the figure is tight rather than merely sufficient. This is what obligation 4 of the targeted gate buys, and it is the concrete answer to "did the replacement gate produce anything real" ([03](03-is-lean-goal-driven.md#did-the-replacement-hold-six-capsules-of-evidence)).
+Why these matter more than they look: the fuel limit of 8 is a *shared* constant, so a capsule that quietly used 7 steps would leave one step of headroom for the whole system. Pinning the exact figure per mechanism converts a global safety net into a per-capsule budget, and the paired *exhaustion* witnesses prove the figure is tight rather than merely sufficient. This is what obligation 4 of the targeted gate buys, and it is the concrete answer to "did the replacement gate produce anything real" ([03](03-is-lean-goal-driven.md#did-the-replacement-hold-now-roughly-twenty-capsules-of-evidence)).
 
 **J · Experiment-lane structural results** — infrastructure for the preservation theorem that is no longer a gate.
 
-`SegmentAt` / `ChainFrom` declarative decomposition relations, tail-parser soundness into those relations, decomposition uniqueness *up to parallel-branch exchange*, `structuredDecomposition_sound` exporting `WholeProcessDecompositionFacts`, complete node and Sequence-Flow coverage, `parsed_chain_is_canonical`, and single- and two-token frontier localisation. All live in `BpmnSemantics/Experiments/` (**2,865** nonblank lines, of which 465 are an unrelated representation spike). Plain `lake build` does not reach them; the default verification gate does, via explicit targets plus a reachability guard. Stages 1–3b are **accepted, frozen experiments**; the checked-source relation itself remains *not adopted*.
+`SegmentAt` / `ChainFrom` declarative decomposition relations, tail-parser soundness into those relations, decomposition uniqueness *up to parallel-branch exchange*, `structuredDecomposition_sound` exporting `WholeProcessDecompositionFacts`, complete node and Sequence-Flow coverage, `parsed_chain_is_canonical`, and single- and two-token frontier localisation. All live in `BpmnSemantics/Experiments/` (**2,984** nonblank lines, of which roughly 465 are an unrelated representation spike). Plain `lake build` does not reach them; the default verification gate does, via explicit targets plus a reachability guard. Stages 1–3b are **accepted, frozen experiments**; the checked-source relation itself remains *not adopted*.
 
 ## 9.3 What is planned — and what is explicitly not
 
 | Planned property | Category | Status | Why it matters |
 |---|---|---|---|
 | Profile-selected program-kind, cardinality, and closure checks | B | **now implemented in both targets** | was the cheapest asymmetry; closed by the profile-parameterized admission work |
-| A TypeScript program validator as strong as Lean's | B | **closed** | the line *"TypeScript program validation remains weaker than the Lean graph backstop"* no longer appears in the docs ([12](12-corrections-log.md#one-asymmetry-that-closed-on-its-own)) |
+| A TypeScript program validator as strong as Lean's | B | **implemented** | topology-independent scoped structural validation plus exact profile cardinality; both implementations reject unknown or mismatched profiles independently |
 | Vertex-count fuel adequacy / no-false-rejection | B | optional, unauthorised | would prove the decider never *wrongly rejects* a valid graph — the mirror of what Stage 2d proved |
 | Closure-selector soundness | D + I | absent | `closeSupported` picks the head of a list, i.e. resolves the parallel choice by node collection order; needs an explicit semantic choice first |
 | An ambiguity refusal in TypeScript matching Lean's `ambiguousInternalChoice` | D | **absent, and named as such** | the core advances the lowest canonical operation ID with no ambiguity signal; agreement rests on canonical order plus per-profile unreachability ([06](06-typescript-core-correctness.md#3--deliberately-divergent-runtime-representations--with-receipts)) |
@@ -205,11 +205,11 @@ Why these matter more than they look: the fuel limit of 8 is a *shared* constant
 | A TypeScript-correspondence proof | agreement is *observed* by the differential pipeline; a proof would require formalising TypeScript ([06](06-typescript-core-correctness.md)) |
 | A Temporal-correspondence proof | refinement is evidenced by replay and history checks, not proved ([07](07-temporal-adapter.md#the-exact-refinement-claim)) |
 | Replay / host-attempt stability as a Lean proposition | host concerns are deliberately kept out of the semantic account |
-| Arbitrary nesting, general variable types, effect faults, ancestor Error search | no capsule approved yet — see [04](04-feasibility.md#the-flat-state-concern-now-largely-answered-for-one-level) |
+| Arbitrary nesting, general variable types, effect faults, ancestor Error search | no capsule approved yet — see [04](04-feasibility.md#the-structural-worry-about-flat-state-and-how-it-turned-out) |
 | Arbitrary BPMN XML parser correctness | out of scope; parser warnings are treated as admission-blocking instead |
 | A project-owned JUEL grammar, AST, or evaluator | deferred to a compatibility overlay; the *implemented* expression language is the project-owned Simple Boolean v1, which Lean and the core each parse and evaluate independently |
 
-That last row inverted since the previous revision, and the inversion is worth noting. It used to read "delegated to the pinned CIB runtime; Lean and the core stop at the consuming transition." What is not planned is a JUEL evaluator; what shipped is a five-form total language that *is* formalised on both sides. The project did not decline to formalise expression truth — it chose a language small enough to formalise twice.
+That last row is worth reading carefully, because it is easy to invert. What is *not* planned is a JUEL grammar or evaluator. What exists is a five-form total language that **is** formalised on both sides. The project did not decline to formalise expression truth; it chose a language small enough to formalise twice, which is a different and better answer than delegating to a pinned runtime.
 
 ## 9.4 Three observations from assembling this inventory
 
@@ -219,11 +219,9 @@ That is not laziness; it is correct calibration. The happy path has a genuinely 
 
 **The second cluster is new: the `_iff` laws in the Inclusive Gateway.** `evaluated_true_candidate_membership_iff` and `evaluated_default_iff_no_candidate_true` are biconditionals, which is a stronger shape than anything in the earlier capsules. The reason is structural rather than stylistic: Inclusive selection is the first mechanism where *both* directions can fail independently — a branch could be selected when its condition is false, or omitted when it is true — and a one-directional law would leave the second failure mode uncovered. Where a mechanism's error space is two-sided, the theorem should be too.
 
-**Observation 2 — the documentation-drift class was found again, and this time it produced a gate.** `IMPLEMENTATION-MAP.md` previously listed *"Saturation-certified executable path completeness and declarative acyclicity"* as **explicitly absent** while the same document recorded Stage 2d as accepted and the theorems compiled. That was corrected two revisions ago.
+**Observation 2 — the reason this inventory names artefacts rather than summarising them.** Documentation drift is the project's most persistent defect class, and its distribution is consistent: the *authority* document is right, and what drifts are documents narrating history alongside state, plus specifications whose vocabulary nothing checks. The project has closed most of that class with guards — retired vocabulary now fails a gate across `docs/`, every registered profile must appear in the admission specification's capability table, and cost-ledger rank claims are recomputed.
 
-The same class turned up twice more during this review: `PLAN.md` still narrated Lean's within-kind wait order as program order after that premise was retired, and — worse — **four implemented specifications still named the retired `terminate` operation**, one of them publishing operation and step counts from the superseded pre-scope contract. Both were fixed in `e873ec7`, and the retired-vocabulary guard now scans `docs/` instead of code only ([12 §10](12-corrections-log.md#10--four-implemented-specifications-named-a-retired-il-operation--resolved-in-code-and-guarded)).
-
-The distribution is consistent and worth trusting: the *authority* document was right every time, and what drifted were documents narrating history alongside state, plus specifications whose vocabulary nothing was checking. Note what the guard does and does not reach. It catches a retired *name*; it cannot catch a stale *number*. The Exclusive Gateway's wrong operation and completion counts used entirely current vocabulary and were caught only by re-deriving the figure from the profile capability table. So this inventory's own figures should be read as trustworthy exactly to the extent that each is attributed to the executable artefact that produced it — which is why the rows above name theorems and modules rather than summarising them.
+Note what those guards do and do not reach. They catch a retired *name* and a missing *row*. They cannot catch a stale *number* stated in current vocabulary against a complete table — that class is recorded at ten instances in the [process assessment ledger](../bpmn-lean-experiment/docs/PROCESS-ASSESSMENT-LEDGER.md) and is guarded only where a figure has an executable owner ([19](19-process-self-measurement.md)). So this inventory's figures are trustworthy exactly to the extent that each is attributed to the artefact that produced it, which is why the rows above name theorems and modules.
 
 **Observation 3 — the newest capsules prove things about *hidden* state, which is a harder obligation than it sounds.** Three mechanisms introduced runtime state that must never be publicly observable: selected-branch records, event races, call records. Each therefore carries a paired obligation — a **non-projection** theorem showing the state stays invisible, *and* a discriminator proving its effects are nonetheless detectable at the public boundary. Getting either half alone would be a mistake in opposite directions: invisible-and-undetectable state cannot be verified at all, while visible state would break the observation contract. The Call Activity identity-erasure witness is the cleanest instance — the called identity is never projected, yet erasing it *inverts the Query identity*, so the erasure is caught through a surface that never exposes the value.
 

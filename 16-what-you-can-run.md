@@ -1,26 +1,27 @@
 # What you can actually run today
 
-*New in this revision. The first runnable product surface arrived in the 173-commit window; previously it was a section in [07](07-temporal-adapter.md).*
-
 ## The question this answers
 
 Everything else here is about whether the semantics are sound. This document answers a blunter question a newcomer asks early and the other documents never quite address: **if I clone this repository, what can I make happen?**
 
-Three things, in increasing order of what they establish:
+Four things, in increasing order of what they establish:
 
 | | What it is | What it proves |
 |---|---|---|
-| `mvp:run` | one command that runs an admitted BPMN model on a Temporal server you supply | the product path works end to end for one model |
-| `test:pipeline` | the 28-case differential/refinement catalog | every implemented profile agrees across its declared targets |
+| `mvp:run` | one command that runs an admitted BPMN model on a Temporal server you supply | the engine path works end to end, for any registered profile |
+| the browser walkthrough | the full product: deploy a file, claim a task, fill a form, inspect an instance | a person can operate the thing |
+| `test:pipeline` | the 51-case differential/refinement catalog | every implemented profile agrees across its declared targets |
 | `verify.sh` | the complete gate | everything, including Lean, CIB, and hygiene |
 
 ## The MVP command
 
 ```sh
-./scripts/pnpm.sh run mvp:run -- examples/temporal-mvp/accepted.json
+./scripts/pnpm.sh run mvp:run -- examples/temporal-mvp/user-task-discovery-completion.json
 ```
 
-That is the whole interface: one command, one config file. The maintained example runs the `None Start → User Task "Approve" → None End` model from [the case study](10-case-study.md) against a Temporal server at `localhost:7233`, installs `requestTitle`, waits three seconds, submits `decision: "approved"` plus an explicit null `reviewNote`, and reports the completed receipt.
+That is the whole interface: one command, one config file. This example runs the `None Start → User Task "Approve" → None End` model from [the case study](10-case-study.md) against a Temporal server at `localhost:7233`, installs `requestTitle`, waits, submits `decision: "approved"` plus an explicit null `reviewNote`, and reports the completed receipt.
+
+**There is one such config per registered profile** — 32 of them, plus `unsupported.json` for the negative path — each reusing the registered scenario's BPMN source unchanged. The command drives them all through *one* interaction driver keyed to the interactions each instance publishes, rather than through a per-model script. A profile carrying a race gets two examples, because one declared plan cannot reach both arms of it.
 
 The config is worth reading in full because its *shape* is the product contract:
 
@@ -98,13 +99,13 @@ The reason for that much emphasis is straightforward: a demo that submits form v
 
 **One caveat that deserves visibility.** BPMN parsing runs before Workflow start with a byte limit and a parser settlement deadline — but `IMPLEMENTATION-MAP.md` lists *"synchronous parser CPU isolation"* as explicitly absent, and `CLAUDE.md` states the consequence: the current timeout *"cannot preempt synchronous parser CPU; production untrusted uploads still require a bounded Worker or process."* So the deadline bounds a Promise, not a busy parser. For a local demo with your own file that is fine. For anything accepting uploads it is not, and the project says so rather than letting the presence of a `parserDeadlineMs` field imply protection it does not provide.
 
-## The 28-case catalog
+## The 51-case catalog
 
 ```sh
 ./scripts/pnpm.sh run test:pipeline
 ```
 
-This is the real demonstration, and it is the reviewer-facing artefact the Proto-MVP milestone was built around. One run: every registered profile compiled from exact bytes, executed by Lean, the semantic core, and Temporal (twice, isolated), compared against retained CIB evidence for the 18 cases that declare a CIB target, with a seeded semantic mutation per case, **30 disposable histories replayed**, **56 isolated Workflow executions**, and clean teardown.
+This is the real demonstration. One run: every registered profile compiled from exact bytes, executed by Lean, the semantic core, and Temporal (twice, isolated), compared against retained CIB evidence for the 24 cases that declare a CIB target, with a seeded semantic mutation per case, **62 disposable histories replayed**, **102 isolated Workflow executions**, and clean teardown. Those two totals are derived from the catalog's case count and `replaySelection` fields; the generated pipeline report is the authority.
 
 Two design decisions make it worth more than a test suite.
 
@@ -112,15 +113,15 @@ Two design decisions make it worth more than a test suite.
 
 **There is deliberately no second explanatory artefact.** Commit `e4402a5` (`refactor(mvp): remove walkthrough surface`) deleted a human-readable walkthrough and its fragment machinery *"so no curated catalog or second explanatory artifact can become a competing scope authority."* The generated pipeline report is the demonstration; `IMPLEMENTATION-MAP.md` is the claim boundary. That deletion is also why *this folder* has a charter forbidding live inventories — the same failure mode, one directory over.
 
-For orientation there is [PROTO-MVP-REVIEWER-GUIDE.md](../bpmn-lean-experiment/docs/PROTO-MVP-REVIEWER-GUIDE.md), which is careful to mark itself *"a maintained review aid, not a competing implementation map, semantic specification, test catalog, or roadmap."*
+There is deliberately no reviewer-facing guide standing beside it. Navigation lives in the project's [documentation registry](../bpmn-lean-experiment/docs/README.md), which routes every task to the document that owns it.
 
 ## What the milestone explicitly is not
 
-The Proto-MVP closure states its own boundary, and it is worth quoting because it is the sentence a reader most needs when deciding what 28 green cases mean:
+The MVP's own closure states its boundary, and it is the sentence a reader most needs when deciding what a green pipeline means:
 
 > This is an end-to-end architecture and evidence milestone, **not a BPMN Process Execution conformance percentage or a broad CIB compatibility claim.**
 
-Concretely, after a fully green pipeline: 1 of 50 A12 models admits unchanged at the static boundary, 0 of 50 execute through an adoption adapter, no percentage of BPMN is claimed, and 10 of the 28 cases have no oracle lane at all because their profiles declare none ([02](02-evidence-and-lanes.md#but-the-decorrelation-is-narrower-than-that-diagram-suggests)).
+Concretely, after a fully green pipeline: 1 of 50 A12 models admits unchanged at the static boundary, 0 of 50 execute through an adoption adapter, all thirteen BPMN mechanism families remain `unsupported` at family level, no percentage of BPMN is claimed, and **27 of the 51 cases have no oracle lane at all** because their profiles declare none ([02](02-evidence-and-lanes.md#for-most-of-the-surface-that-lane-does-not-run)).
 
 ## Running the gates
 
@@ -140,8 +141,8 @@ Faster loops, if you do not want the full gate: `test:semantic` (Lean plus core)
 
 ## The honest summary
 
-What exists is a **working engine for sixteen bounded mechanisms with a genuine product entry point**, demonstrated end to end from exact bytes through durable execution and replay, with every claim's boundary written down.
+What exists is a **working engine for thirty bounded mechanisms, plus a browser product on top of it**, demonstrated end to end from exact bytes through durable execution, replay, and a human completing a form, with every claim's boundary written down.
 
-What does not exist is generality. Every mechanism is pinned to a literal, the runnable command handles one model shape, and the distance between this and a general BPMN engine is roughly forty more mechanisms at 3,100–5,800 lines each ([04](04-feasibility.md#the-cost-curve-finally-measured)).
+What does not exist is generality. Every mechanism is pinned to a literal, all thirteen BPMN mechanism families are disposed `unsupported` at family level, and a new family costs 3,000–6,500 lines across seven layers plus a review cycle ([04](04-feasibility.md#the-cost-curve-measured)).
 
 Both halves are load-bearing. A reader who takes only the first will overestimate what this is; a reader who takes only the second will miss that the hard architectural risks — durable hosting, representation replacement, scope semantics — are the ones that have actually been retired.

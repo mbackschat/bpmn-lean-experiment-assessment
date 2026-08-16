@@ -1,34 +1,89 @@
-# CLAUDE.md / AGENTS.md — bpmn-lean-experiment assessment record
+# CLAUDE.md / AGENTS.md — bpmn-lean-experiment assessment
 
-Guidance for any agent editing this folder. [AGENTS.md](AGENTS.md) is a symlink to this file; keep one canonical guide and preserve the symlink.
+Authoring rules for this folder. [AGENTS.md](AGENTS.md) is a symlink to this file; keep one canonical guide and preserve the symlink.
 
-## The charter lives in README.md, not here
+[README.md](README.md) is the human-facing entry point: what the assessment is, what the project is, the contents index, and where to read more. It owns no rules. Everything an author needs is here.
 
-The purpose, in-scope and out-of-scope lists, update priorities, and update discipline for this folder are owned by **[README.md § Purpose, and the charter that drives updates](README.md#purpose-and-the-charter-that-drives-updates)**. Read that section in full before editing anything, and do not restate it here.
+## Rule 0 — highest priority: write the present tense, never a changelog
 
-That split is deliberate and is the folder's own subject matter: two copies of one rule is the precondition for drift, and this record exists partly because a repository specification restated an invariant the authority document owned and then diverged from it. See [12 §10](12-corrections-log.md) and [15 § The blind spot](15-review-and-delegation.md#the-blind-spot-review-is-diff-scoped-and-invariants-are-not).
+**Owner decision, 16 August 2026. This overrides every other rule here and any habit carried in from the described repository.**
+
+Every document describes **what is true now**. This is not a history of the project and not a history of this record. The reader wants the current picture; they do not care how it was arrived at.
+
+Concretely, and these are prohibitions rather than preferences:
+
+- **No corrections log, no changelog, no revision history, no "what changed" section.** If a statement became false, **rewrite it** and delete the old one. Do not annotate, do not strike through, do not keep the wrong version beside the right one.
+- **No "new in this revision", "previously", "the last revision said", "this used to be", "now corrected", "⚠ Resolved", or "superseded"** as framing for this record's own past. Delete the frame and state the fact.
+- **No comparison between versions of this record**, and no counts of how many of its own claims were wrong.
+- **Do not narrate the project's chronology either.** "Six capsules closed in four days" is a changelog sentence. "Thirty bounded mechanisms are closed, each pinned to a literal" is the same information as a present-tense fact, and it is the one to write.
+
+Two things are **not** history and stay:
+
+1. **Provenance.** One exact baseline commit, its date, and the worktree state, because every figure is measured against it. That is what makes a figure checkable.
+2. **The project's own recorded history where it is a current fact about the project.** The repository maintains a capsule cost ledger and a process assessment ledger; their contents are present-tense evidence about how the project works and belong here. The distinction is ownership: report *their* ledgers, keep none of your own.
+
+When a statement here turns out to have been wrong, the correction is a **rewrite plus a one-line note to the user in the response** — never a durable artefact in the folder.
+
+## Purpose and scope
+
+**Purpose.** Explain why `bpmn-lean-experiment` is built the way it is, and how far along it honestly is, to someone who does not already know BPMN, Lean, or Temporal internals. The value is synthesis and judgement across boundaries the repository keeps separate, because each repository document is correctly narrow and nothing there is allowed to state the whole picture and what it is worth.
+
+### In scope
+
+- **Reasoning, not restatement** — why two hand-written transcriptions, why non-laws are mandatory, why an oracle reads bytes, why a host capability is not semantic admission, why a product may not read its own host's event log.
+- **The boundary of every claim** — what a passing lane does and does not establish. This is the most valuable thing here and the easiest to get wrong.
+- **Honest assessment** — feasibility, measured cost, residual correlation, and named open questions with their trade-offs.
+- **Cross-cutting synthesis** — topics spanning several repository owners, which therefore have no single owner to consult.
+
+### Out of scope
+
+| Excluded | Why |
+|---|---|
+| **Changelogs and revision history**, of the project or of this record | Rule 0. A correct historical sentence and a stale current claim are indistinguishable in prose, which is how documentation drifts. |
+| **Live inventories** — case catalogs, profile lists, evidence matrices, test counts | A hand-maintained copy of something the code owns *will* drift. The project deleted its own walkthrough surface (`e4402a5`) so no curated catalog could become a competing scope authority. |
+| **Any claim not sourced from the repository or its executable evidence** | This folder must never be the place a fact originates. |
+| **Predictions about unbuilt work presented as near-future fact** | An owner-approved design is "what the approved design implies", never "what is about to exist". This record has published such predictions and they were wrong. |
+| **Aggregated support claims** — percentages, "supported" verdicts, merged denominators | The project keeps BPMN, CIB, A12, and platform coverage as separate denominators and never combines them. Neither does this folder. |
+| **Advocacy** | The reader is deciding whether to trust the work. An assessment that flatters it is worthless to them. |
+| **Repository changes** | This folder is a record. Defects it finds in the repo are *reported*, not fixed here. |
+
+### Priorities, in order
+
+1. **The scope of each claim is correct.** A well-bounded stale figure is recoverable; a confidently over-broad claim misleads. Fix scope errors first.
+2. **Every figure names the artefact that produced it.** See rule 4 below.
+3. **Everything is present tense.** Rule 0.
+4. Prose quality — genuinely last.
 
 ## Hard rules, repeated here only because violating them is silent
 
 1. **This folder is never authoritative.** `../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md` wins every disagreement. If a statement here conflicts with it, this folder has a bug.
-2. **Never edit the repository from this folder's task.** Defects found in `bpmn-lean-experiment` are *reported* to the user, with enough evidence to act on. Fixing them is a separate, separately scoped task in the repository, under that repository's `CLAUDE.md`.
-3. **Re-measure; never carry a figure forward.** Every revision states one exact baseline commit and measures against it. Record later commits you checked but did not re-baseline against.
-4. **Attribute every figure to the artefact that produced it.** Vocabulary and inventory drift are now caught by executable guards in the repository; **numeric drift is not**. Attribution is the only defence, and this record has already published wrong counts once.
+2. **Never edit the repository from this folder's task.** Defects found in `bpmn-lean-experiment` are *reported* to the user with enough evidence to act on. Fixing them is a separate, separately scoped task under that repository's `CLAUDE.md`.
+3. **Re-measure; never carry a figure forward.** State one exact baseline commit and measure everything against it.
+4. **Attribute every figure to the artefact that produced it.** Vocabulary and inventory drift are caught by executable guards in the repository, and numeric drift is guarded only for the two repository documents whose figures have an executable owner. **Every figure here is unguarded**, so attribution is the only defence.
 5. **Verify agent reports before relaying them.** Re-run the gate, re-derive the disputed number from source. A report claiming a figure is not the figure.
-6. **When this record was wrong, add it to [12](12-corrections-log.md).** Do not silently edit. The falsification history is the deliverable.
+
+## Measurement method
+
+- **Counts come from the guarded catalog, not from prose.** Registered profiles from `profiles/*/profile.json`; CIB-backed versus standards-only from each profile's `oracle` field; pipeline cases from `pipelineCases` in `packages/differential/test/pipeline-cases.ts`; IL operations from `SemanticOperationKind` cross-checked against `contracts/schemas/semantic-process.schema.json`; theorem and language counts from the project README's generated publication-statistics block.
+- **Line counts are nonblank counts over the tracked tree** at the baseline commit, and say so. Do not mix them with the generated block's tokei "code" figures, which exclude comments.
+- **A derived figure must be labelled derived** at the point of use, with its derivation stated — for example, replay totals folded from the catalog's `replaySelection` fields.
+- **Never leave the described repository dirty.** If a scratch script is needed to count something, run it from the scratchpad or delete it and confirm `git status --porcelain` is empty.
 
 ## Mechanics
 
 - **Markdown style:** one paragraph per line, no hard wrapping at a fixed column. Regular relative Markdown links for other project documents so they open in a viewer.
-- **Numbering:** append new documents (`17-`, `18-`, …). **Never renumber** — inbound links and anchors break silently.
+- **Numbering:** document numbers are permanent addresses. Append new documents (`20-`, `21-`, …). **Never renumber**, and never reuse a retired number — inbound links and anchors break silently. Gaps in the sequence are expected and fine.
 - **Anchors:** GitHub-style. A `.` or `·` in a heading collapses to a single `-`, so `## 9.2 Proven today — by category` is `#92-proven-today--by-category`. Verify cross-document anchors after editing headings; several have been wrong.
+- **When a topic outgrows its host document, add a document** rather than inflating an existing one past its question. Prefer deleting a stale section to half-updating it: a section that is 60% current is worse than an absent one.
+- **End every document with its residual** — what it has *not* established.
 - **Do not activate the `linear-walkthrough` skill and do not invoke `showboat`.** Author Markdown directly. The repository deleted its own generated walkthrough surface (`e4402a5`) so no second explanatory artefact could become a competing scope authority; the same reasoning applies here.
 
-## Before finishing a revision
+## Before finishing
 
 Check, and report the result:
 
-- every cross-document anchor, file link, and `../../Projects/…` path resolves;
+- every cross-document anchor, file link, and `../bpmn-lean-experiment/…` path resolves — the sibling repository moves fast, and this folder has no executable link guard;
 - no figure contradicts `IMPLEMENTATION-MAP.md`;
-- [12](12-corrections-log.md) covers every claim this revision falsified, including this record's own;
-- the README version box names the exact commit, and lists later commits checked but not re-baselined against.
+- **no changelog or revision-history material survives anywhere.** Grep for `previous revision`, `new in this`, `this revision`, `last revision`, `used to`, `superseded`, `Resolved`, `changed since`, and bare dates, and delete what you find;
+- the README states the exact baseline commit and its date;
+- the described repository's worktree is still clean.

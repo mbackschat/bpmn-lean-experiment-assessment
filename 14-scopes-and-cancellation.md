@@ -1,7 +1,5 @@
 # Scopes, quiescence, and cancellation
 
-*New in this revision. This was the single largest semantic addition of the 173-commit window, and it was previously scattered across [04](04-feasibility.md), [05](05-semantic-core-and-il.md), [09](09-property-inventory.md), and [11](11-open-questions.md) without a home.*
-
 ## Three different things called "scope"
 
 The word is overloaded, and conflating any two of them makes the rest of this document unreadable. The project keeps them strictly apart:
@@ -104,7 +102,7 @@ The corresponding negative witnesses are unusually careful. `duplicate_identity_
 
 ## What one level bought, and what repetition would break
 
-**Bought — and this answers the structural worry that opened [04](04-feasibility.md#the-flat-state-concern-now-largely-answered-for-one-level):** parent chains, ownership resolution, interruption propagation, and token cancellation across a subtree all exist, with Lean relations, reusable laws, non-laws, independent TypeScript behaviour, four CIB-backed schedules, and Temporal evidence. The representation replacement was performed on the genuinely hard case and the proofs survived it. Cost was `+5266/-1698` then `+3370/-398`, the second cheaper because it reused the first.
+**Bought — and this answers the structural worry that opened [04](04-feasibility.md#the-structural-worry-about-flat-state-and-how-it-turned-out):** parent chains, ownership resolution, interruption propagation, and token cancellation across a subtree all exist, with Lean relations, reusable laws, non-laws, independent TypeScript behaviour, four CIB-backed schedules, and Temporal evidence. The representation replacement was performed on the genuinely hard case and the proofs survived it. Cost was `+5266/-1698` then `+3370/-398`, the second cheaper because it reused the first.
 
 **Not bought:** depth and repetition. Explicitly absent are *"arbitrary or repeated nesting, loops that reactivate one definition scope, and concurrent occurrences of the same child definition"*, plus Event Sub-Processes, Transactions, compensation, general cancellation, and handler search beyond one direct parent.
 
@@ -114,4 +112,4 @@ So loops and multi-instance Activities are not "more of the same". They are wher
 
 ## The one thing to take away
 
-The flat-to-scoped replacement is the closest thing this project has to evidence that its assurance discipline can absorb a **representation change** rather than only accumulate features. Three atomic replacements landed in one window — `terminate` split, flat variables to scoped variables, `MessageChannel` to a closed union — each touching every producer, consumer, schema, fixture, and mutation with no parallel reader anywhere. That is only possible under the pre-release policy that forbids compatibility paths ([08](08-swapping-temporal.md#reason-2--no-history-compatibility-debt-exists)), and it is the strongest argument for closing that window later rather than sooner ([11 §5](11-open-questions.md#5--what-happens-to-the-pre-release-freedom-when-the-first-durable-baseline-lands--unchanged-and-more-urgent)).
+The flat-to-scoped replacement is the closest thing this project has to evidence that its assurance discipline can absorb a **representation change** rather than only accumulate features. Three atomic replacements sit behind it — the `terminate` split, flat variables to scoped variables, `MessageChannel` to a closed union — each touching every producer, consumer, schema, fixture, and mutation with no parallel reader anywhere. That is only possible under the pre-release policy forbidding compatibility paths ([08](08-swapping-temporal.md#reason-2--no-history-compatibility-debt-exists)), and it is the strongest argument for closing that window later rather than sooner ([11 §5](11-open-questions.md#5--what-happens-to-the-pre-release-freedom-when-the-first-durable-baseline-lands))).
