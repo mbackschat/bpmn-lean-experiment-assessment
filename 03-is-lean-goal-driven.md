@@ -80,7 +80,7 @@ Obligation 6 deserves a note, because it is the one that reads like boilerplate 
 
 ## Did the replacement hold? Now roughly twenty capsules of evidence
 
-Last revision, this was the open residual: *does the targeted gate stay local, or do several capsules each close a slightly different version of the same proposition and pay for the general bridge in instalments?* Six capsules had closed under it then. Roughly twenty have now — the whole M1–M6 engine programme — and the verdict is the same split, with both halves better evidenced.
+The residual worth testing is *does the targeted gate stay local, or do several capsules each close a slightly different version of the same proposition and pay for the general bridge in instalments?* Roughly twenty capsules — the whole M1–M6 engine programme — have closed under it, and the verdict is a split.
 
 **The proof obligations stayed local. Emphatically, and now through a much harder set of cases.** Every capsule discharged obligation 4 with an *exact* closure figure rather than a bound inherited from elsewhere: Simple Boolean's three steps, the Inclusive four-step with bound-three exhaustion, the Event-race two-step arming with bound-one exhaustion, Call Activity's 3/3/2, cyclic control flow's automatic cut-DAG closure at no more than six operations, Terminate End's exact 5/3/2, the configured Task's 2/1 · 1/0 · 2/1 separation. Nobody needed a general closure-fuel-stability theorem, which is precisely what the superseded programme would have built first.
 

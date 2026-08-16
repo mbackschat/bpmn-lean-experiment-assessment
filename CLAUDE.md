@@ -4,6 +4,20 @@ Authoring rules for this folder. [AGENTS.md](AGENTS.md) is a symlink to this fil
 
 [README.md](README.md) is the human-facing entry point: what the assessment is, what the project is, the contents index, and where to read more. It owns no rules. Everything an author needs is here.
 
+## Before you start
+
+**Read `scripts/` and run `sh scripts/check.sh` before the first edit, not only before the last one.** Three checks exist and they define most of what "correct" means here; a baseline run also tells you whether a revisit is owed and which documents are implicated, which is usually the fastest way to scope the work.
+
+Do not assert what this folder does or does not contain without opening it. Every mistake worth guarding against in this record's history has the same shape: a claim about a mechanism, made without reading the mechanism.
+
+| Check | Enforces |
+|---|---|
+| `check-links.sh` | file links, cross-document and self anchors, pinned cross-repo URLs — that each path exists at the baseline commit *and* that each pin names the current baseline |
+| `check-prose.sh` | Rule 0 — no changelog framing about this record's own past |
+| `check-staleness.sh` | the README baseline is a real commit, and how far the described repository has moved since it |
+
+A new guard is only trustworthy once a **planted violation** has been shown to fail it. That is the described repository's own rule and it applies here.
+
 ## Rule 0 — highest priority: write the present tense, never a changelog
 
 **Owner decision, 16 August 2026. This overrides every other rule here and any habit carried in from the described repository.**
@@ -85,12 +99,11 @@ When a statement here turns out to have been wrong, the correction is a **rewrit
 
 ## Before finishing
 
-**Run `sh scripts/check.sh` and report its output.** It is the only executable guard this folder has, and it covers more than it looks: intra-folder file links, cross-document and self anchors, every pinned cross-repo URL — both that the path exists at that commit *and* that the pin names the current baseline — plus a drift report against the described repository. Exit 3 from the staleness half means "a revisit is owed", not a failure.
+**Run `sh scripts/check.sh` and report its output.** Exit 3 from the staleness half means "a revisit is owed", not a failure; anything else non-zero is.
 
-Then check, and report the result:
+Then check the things no script can, and report the result:
 
-- `scripts/check.sh` exits 0, or its drift report is the only reason it does not;
-- no figure contradicts `IMPLEMENTATION-MAP.md`;
-- **no changelog or revision-history material survives anywhere.** Grep for `previous revision`, `new in this`, `this revision`, `last revision`, `used to`, `superseded`, `Resolved`, `changed since`, and bare dates, and delete what you find;
-- the README states the exact baseline commit and its date;
-- the described repository's worktree is still clean.
+- **no figure contradicts `IMPLEMENTATION-MAP.md`**, and each one names the artefact that produced it. This is the largest unguarded surface here: `check-prose.sh` catches changelog *framing* and `check-links.sh` catches a dead *path*, but **nothing detects a stale number**. A figure can use entirely current vocabulary, sit in a well-formed sentence, and be wrong — the described repository guards its own figures only where a number has an executable owner, and none of this record's do. Re-derive, never carry forward;
+- Rule 0 holds in substance, not only in vocabulary. The guard matches unambiguous self-referential phrasing; it cannot see a paragraph that narrates chronology in fresh words;
+- the described repository's worktree is still clean;
+- **when re-baselining, every pinned cross-repo URL names the new commit.** `check-links.sh` fails if one does not, so this is guarded — but it is a mechanical pass over every document, so plan for it rather than discovering it.
