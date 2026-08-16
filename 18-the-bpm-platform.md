@@ -16,13 +16,13 @@ The engine was never the deliverable. [00](00-background.md) records the eventua
 | 2 | BPM platform on Temporal | this project | MIT | product 1 |
 | 3 | A12 Workflows replacement | A12 | EUPL-1.2 | product 2 |
 
-The licence direction is the load-bearing part. [PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md#product-division) states it flatly: **"product 2 must never take an EUPL dependency"**, or the separation it exists to provide is gone. Product 3 lives in another organisation's repository under a reciprocal licence, so its boundary is a *distribution* boundary. Products 1 and 2 share this repository, and that choice needs its own defence.
+The licence direction is the load-bearing part. [PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md#product-division) states it flatly: **"product 2 must never take an EUPL dependency"**, or the separation it exists to provide is gone. Product 3 lives in another organisation's repository under a reciprocal licence, so its boundary is a *distribution* boundary. Products 1 and 2 share this repository, and that choice needs its own defence.
 
 ### Why one repository, argued from the project's own rules
 
 The obvious instinct is that a product consuming a published contract should live behind a distribution boundary. The project argues the opposite, and the argument is worth reading because it is derived from an existing rule rather than from convenience:
 
-> A change to a published observation ripples through the checked graph, the Lean account, the semantic core, the adapter, the schemas, and then the platform's read models and surfaces, and [the pre-release evolution policy](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md#pre-release-evolution-policy) requires that such a change replace every producer, consumer, fixture, schema, and test **atomically**.
+> A change to a published observation ripples through the checked graph, the Lean account, the semantic core, the adapter, the schemas, and then the platform's read models and surfaces, and [the pre-release evolution policy](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md#pre-release-evolution-policy) requires that such a change replace every producer, consumer, fixture, schema, and test **atomically**.
 
 Two repositories would make that impossible for the engine-to-platform contract. It would need either lockstep releases or a version-tolerant reader — and the second is exactly what the pre-release policy forbids before an immutable baseline exists. So sharing one tree is the option *consistent with the project's own rules*, not a shortcut around them. [08](08-swapping-temporal.md#reason-2--no-history-compatibility-debt-exists) explains what that policy buys; this is the same freedom being spent on a different boundary.
 
@@ -59,8 +59,8 @@ The second rule is the one that would be quietly broken by any ordinary product 
 
 | # | What the platform needed | How it was answered |
 |---|---|---|
-| E1 | a committed per-transition record in the public contract | the [committed execution publication capsule](../bpmn-lean-experiment/docs/capsules/COMMITTED-EXECUTION-PUBLICATION-SPEC.md) — a full engine capsule with Lean proofs |
-| E2 | a profile admission capability for User Task assignment and form metadata, plus a public projection carrying it | the [User Task metadata capsule](../bpmn-lean-experiment/docs/capsules/USER-TASK-ASSIGNMENT-FORM-METADATA-SPEC.md) |
+| E1 | a committed per-transition record in the public contract | the [committed execution publication capsule](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/COMMITTED-EXECUTION-PUBLICATION-SPEC.md) — a full engine capsule with Lean proofs |
+| E2 | a profile admission capability for User Task assignment and form metadata, plus a public projection carrying it | the [User Task metadata capsule](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/USER-TASK-ASSIGNMENT-FORM-METADATA-SPEC.md) |
 
 E1 is the sharper case. The platform needed instance history, and the obvious source — Temporal Event History — was sitting right there, already durable, already ordered. The rule forbade it, so the engine grew a publication contract instead: the semantic core and Lean each retain exact unnumbered transition and public-position facts, the Workflow alone assigns contiguous revisions, and Product 2 validates each page against its transactionally retained head before applying a contiguous suffix. The projection **rebuilds to identical content from revision zero**, and a seeded gap is detected rather than skipped.
 
@@ -76,7 +76,7 @@ That converts "the platform reconstructs no semantic fact" from a rule into a te
 
 ## The milestone ladder as an acceptance contract
 
-The platform's acceptance gates are **showcase milestones**, not a separate artefact. That decision matters more than it looks: a milestone closes only when its executable gate is green *and* [IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md) records the exact surface it reached, so a demo cannot close one.
+The platform's acceptance gates are **showcase milestones**, not a separate artefact. That decision matters more than it looks: a milestone closes only when its executable gate is green *and* [IMPLEMENTATION-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/IMPLEMENTATION-MAP.md) records the exact surface it reached, so a demo cannot close one.
 
 Two boundaries hold across the whole ladder, and a milestone demonstrable only by violating either **has not been reached**: the engine must still build and verify with no platform package present, and the platform must reach the engine only through narrowed public entry points.
 
@@ -90,7 +90,7 @@ Two boundaries hold across the whole ladder, and a milestone demonstrable only b
 | **M5** it can be operated and explained | an operator replays what a finished instance did, sees where a running one stands on the diagram, and exports the history | E1 committed publication; flow-node occurrence lifecycle publication |
 | **M6** useful structured Human Work | a reviewer completes six field kinds and picks Approve / Request changes / Abort, and the process follows the matching gateway route | generic safe integers and ordered string lists, admitted only for one User Task completion profile |
 
-Read that right-hand column as the real finding. **The platform selects the engine's roadmap.** [PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md#cib-seven-220-breadth-ordering) makes that explicit as a tie-breaker — when candidates are equal in standards value, reach, and risk, "the one the BPM platform's next showcase milestone needs wins" — but the ladder does more than break ties. Cycles, incidents, cancellation, publication, and a widened value domain are all mechanisms the standards roadmap would reach eventually, pulled forward because a milestone needed them.
+Read that right-hand column as the real finding. **The platform selects the engine's roadmap.** [PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md#cib-seven-220-breadth-ordering) makes that explicit as a tie-breaker — when candidates are equal in standards value, reach, and risk, "the one the BPM platform's next showcase milestone needs wins" — but the ladder does more than break ties. Cycles, incidents, cancellation, publication, and a widened value domain are all mechanisms the standards roadmap would reach eventually, pulled forward because a milestone needed them.
 
 Whether that is good is genuinely arguable. It produces a coherent product and closes several high-risk semantic families early. It also means the engine's ordering is driven by what a demonstrable capability needs, and [04](04-feasibility.md) is where the consequence for OMG conformance lands.
 
@@ -151,7 +151,7 @@ Nonblank measurement over the tracked tree at the baseline commit:
 | `packages/` — product 1 engine, `src` plus `test` | 102,574 |
 | `platform/` plus `showcase/` — product 2 and its acceptance gates | 72,994 |
 
-Product 2 stands at roughly seven-tenths of the engine's size. And the [capsule cost ledger](../bpmn-lean-experiment/docs/CAPSULE-COST-LEDGER.md), with forty measured increments, makes the shape clearer than the totals do:
+Product 2 stands at roughly seven-tenths of the engine's size. And the [capsule cost ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CAPSULE-COST-LEDGER.md), with forty measured increments, makes the shape clearer than the totals do:
 
 ```text
 nonblank code additions per measured increment — the six largest are five platform
@@ -175,7 +175,7 @@ Product 2 operator history/audit   +3608
 
 The honest reading has two parts and they point in opposite directions.
 
-**Product 2 is now the dominant cost centre, and it buys no BPMN coverage.** The four largest non-A12 rows are platform or platform-driven. [PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md#what-the-platform-may-consume) keeps platform coverage as a third denominator that never merges with the BPMN or CIB ones, and the platform proposal states the consequence: **"No product lane is an independent semantic evidence lane."** So thirteen thousand lines of human work moved the BPMN denominator by zero.
+**Product 2 is now the dominant cost centre, and it buys no BPMN coverage.** The four largest non-A12 rows are platform or platform-driven. [PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md#what-the-platform-may-consume) keeps platform coverage as a third denominator that never merges with the BPMN or CIB ones, and the platform proposal states the consequence: **"No product lane is an independent semantic evidence lane."** So thirteen thousand lines of human work moved the BPMN denominator by zero.
 
 **But the reuse curve inside the platform is real, and it is the only place in this repository where cost has fallen repeatedly.** The ledger's own comparisons record it row by row: incident operations came in *below* human work by reusing the confirmed-publication lifecycle, identity policy, audit boundary, and UI kit; flow-node metrics came in below both; operator history and audit export came in at `+3608` against a `+4802` comparator by reusing the existing audit events, outboxes, registry, authorization policy, canonical JSON mechanism, and Process-detail shell; structured Human Work fell by 7,169 lines against human work. Five consecutive platform increments where the measured cost fell, against an engine curve that [04](04-feasibility.md#the-cost-curve-measured) shows flat.
 
@@ -192,7 +192,7 @@ This is where a reader should be most careful, because the platform's gates are 
 | Chromium journeys at 1280 and 1600 px | an offered user workflow completes, with each mutation's false precondition separately locked | nothing about the engine's correctness |
 | Cross-product agreement | the platform's projected tasks equal the engine's published open tasks for every registered scenario | that the engine's published set is right |
 
-There is **no Lean account of Product 2, no oracle, and no differential lane.** The pinned CIB Seven engine has a Cockpit and a Tasklist, and the project deliberately does not use them as behavioural oracles: [PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md#source-grounded-product-2-interaction-design) requires inspecting the comparable CIB capability as *interaction-design* input before selecting a material UI surface, and is explicit that CIB Seven remains "a functional and interaction-design reference for Product 2, not a semantic authority, dependency, or visual theme."
+There is **no Lean account of Product 2, no oracle, and no differential lane.** The pinned CIB Seven engine has a Cockpit and a Tasklist, and the project deliberately does not use them as behavioural oracles: [PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md#source-grounded-product-2-interaction-design) requires inspecting the comparable CIB capability as *interaction-design* input before selecting a material UI surface, and is explicit that CIB Seven remains "a functional and interaction-design reference for Product 2, not a semantic authority, dependency, or visual theme."
 
 That is the correct call — a CIB screen is not evidence about a BPMN proposition — but it leaves Product 2 supported by exactly the kinds of evidence the rest of this record spends its time qualifying. A reader who trusts the engine's claims because of [02](02-evidence-and-lanes.md) should not extend that trust to the platform on the same grounds. The platform's claim is narrower and different: *it reconstructs no semantic fact*, and that one claim is tested.
 

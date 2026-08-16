@@ -54,7 +54,7 @@ Every new evidence projection must come with a *deliberate seeded defect* that t
 
 **Why:** a comparison that observes the wrong field passes forever. A mutation is a test of the test.
 
-**The three rows are not interchangeable, and conflating them is the easiest mistake to make here.** A comparator-side mutation is applied to a clone of a target's *own* canonical output, so detecting it proves the comparator is field-sensitive and **nothing** about whether the CIB projector, retained evidence, Lean, or Temporal would surface a real behavioural difference. [TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md) makes that a first-class rule in its evidence-lane table:
+**The three rows are not interchangeable, and conflating them is the easiest mistake to make here.** A comparator-side mutation is applied to a clone of a target's *own* canonical output, so detecting it proves the comparator is field-sensitive and **nothing** about whether the CIB projector, retained evidence, Lean, or Temporal would surface a real behavioural difference. [TESTING-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md) makes that a first-class rule in its evidence-lane table:
 
 > *"Comparator-side mutations (applied to a clone of a target's canonical result) establish that the comparator detects one claimed field distinction; verifier-side mutations (applied to retained raw producer observations) establish that the raw-to-canonical evidence projection detects it … a comparator-side mutation establishes nothing about the evidence projection."*
 
@@ -154,7 +154,7 @@ That is the correlation rule applied to the largest new body of green tests in t
 
 ## The residual, stated plainly
 
-Even with all of that, [PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md) distinguishes **two kinds of independence**, and the project claims only one:
+Even with all of that, [PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md) distinguishes **two kinds of independence**, and the project claims only one:
 
 | | Achieved? |
 |---|---|

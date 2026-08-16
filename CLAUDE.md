@@ -71,9 +71,14 @@ When a statement here turns out to have been wrong, the correction is a **rewrit
 
 ## Mechanics
 
-- **Markdown style:** one paragraph per line, no hard wrapping at a fixed column. Regular relative Markdown links for other project documents so they open in a viewer.
+- **Markdown style:** one paragraph per line, no hard wrapping at a fixed column.
+- **Links, and this rule has two halves:**
+  - **Within this folder** — relative Markdown links (`[05](05-semantic-core-and-il.md#the-packages-and-the-flow)`), so they open in a viewer and resolve on GitHub.
+  - **Into the assessed repository** — absolute GitHub URLs **pinned to the baseline commit**: `https://github.com/mbackschat/bpmn-lean-experiment/blob/<baseline>/<path>`. Never `../bpmn-lean-experiment/…`, which resolves only in a sibling checkout and is dead for every reader on GitHub. Pinning rather than `blob/main` is what makes a quotation checkable: the sibling repository moves hundreds of commits a week, and an unpinned link can point at a file that has since changed or been deleted.
+  - The one deliberate exception is the README's "check for current truth" pointer, which targets `blob/main` on purpose. Keep it that way.
+  - **When re-baselining, rewrite every pinned URL to the new commit.** It is a single mechanical pass and the record is wrong without it.
 - **Numbering:** document numbers are permanent addresses. Append new documents (`20-`, `21-`, …). **Never renumber**, and never reuse a retired number — inbound links and anchors break silently. Gaps in the sequence are expected and fine.
-- **Anchors:** GitHub-style. A `.` or `·` in a heading collapses to a single `-`, so `## 9.2 Proven today — by category` is `#92-proven-today--by-category`. Verify cross-document anchors after editing headings; several have been wrong.
+- **Anchors:** GitHub-style, and the rule is *remove, then hyphenate*. Lowercase; **delete** every character that is not alphanumeric, space, or hyphen — including `.`, `·`, `—`, `,`, `?`; then turn each remaining space into `-`. So `## 9.2 Proven today — by category` is `#92-proven-today--by-category`: the `.` vanishes and the em dash leaves the two spaces that become `--`. Verify cross-document anchors after editing any heading; renaming a heading silently breaks every inbound link.
 - **When a topic outgrows its host document, add a document** rather than inflating an existing one past its question. Prefer deleting a stale section to half-updating it: a section that is 60% current is worse than an absent one.
 - **End every document with its residual** — what it has *not* established.
 - **Do not activate the `linear-walkthrough` skill and do not invoke `showboat`.** Author Markdown directly. The repository deleted its own generated walkthrough surface (`e4402a5`) so no second explanatory artefact could become a competing scope authority; the same reasoning applies here.
@@ -82,7 +87,7 @@ When a statement here turns out to have been wrong, the correction is a **rewrit
 
 Check, and report the result:
 
-- every cross-document anchor, file link, and `../bpmn-lean-experiment/…` path resolves — the sibling repository moves fast, and this folder has no executable link guard;
+- every intra-folder link and anchor resolves, and **every pinned cross-repo URL names the current baseline commit and exists at it** — verify against the local sibling checkout at that commit, because this folder has no executable link guard;
 - no figure contradicts `IMPLEMENTATION-MAP.md`;
 - **no changelog or revision-history material survives anywhere.** Grep for `previous revision`, `new in this`, `this revision`, `last revision`, `used to`, `superseded`, `Resolved`, `changed since`, and bare dates, and delete what you find;
 - the README states the exact baseline commit and its date;

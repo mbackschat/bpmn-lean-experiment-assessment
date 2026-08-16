@@ -4,20 +4,20 @@ A reasoned assessment of [`bpmn-lean-experiment`](https://github.com/mbackschat/
 
 It is written for someone who does not already know BPMN, Lean, or Temporal internals. Its value is synthesis across boundaries the repository deliberately keeps separate — each document there is correctly narrow, and nothing there is allowed to say "here is the whole picture, and here is what it is worth."
 
-**This is not authoritative.** The project's own documents win every disagreement. Where a statement here conflicts with [docs/IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md), the implementation map is right and this repository has a bug.
+**This is not authoritative.** The project's own documents win every disagreement. Where a statement here conflicts with [docs/IMPLEMENTATION-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/IMPLEMENTATION-MAP.md), the implementation map is right and this repository has a bug.
 
-**Version described:** commit `0adda45` (16 August 2026), clean worktree. The project moves at hundreds of commits a week, so treat everything here as dated and check [docs/IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md) and [docs/PLAN.md](../bpmn-lean-experiment/docs/PLAN.md) for current truth.
+**Version described:** commit [`0adda45`](https://github.com/mbackschat/bpmn-lean-experiment/tree/0adda45) (16 August 2026), clean worktree. Every link into the assessed project is pinned to that exact commit, so what you click is what was assessed. The project moves at hundreds of commits a week, so treat everything here as dated and check the current [docs/IMPLEMENTATION-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/main/docs/IMPLEMENTATION-MAP.md) and [docs/PLAN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/main/docs/PLAN.md) on `main` for current truth.
 
 ## Getting started
 
-Clone both repositories side by side. Every link into the assessed project is relative and assumes a sibling checkout:
+Read it here — every document is self-contained and every reference into the assessed project resolves on GitHub.
+
+To follow along in the code, clone both repositories:
 
 ```sh
 git clone https://github.com/mbackschat/bpmn-lean-experiment.git
 git clone https://github.com/mbackschat/bpmn-lean-experiment-assessment.git
 ```
-
-Those `../bpmn-lean-experiment/…` links do not resolve while browsing this repository on GitHub, because they deliberately point outside it. Read locally, or use [Where to read more](#where-to-read-more) to reach the project's documents on GitHub.
 
 If you only read three documents: [00](00-background.md), then [18](18-the-bpm-platform.md) and [02](02-evidence-and-lanes.md).
 
@@ -91,32 +91,32 @@ Authoritative project documents, each with a single owner:
 
 | Topic | Document |
 |---|---|
-| Contributor rules, boundaries, working method | [CLAUDE.md](../bpmn-lean-experiment/CLAUDE.md) |
-| Mission, authority, product division, durable boundaries | [docs/PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md) |
-| Repository layout, modular monolith, dependency direction, decision register | [docs/ARCHITECTURE.md](../bpmn-lean-experiment/docs/ARCHITECTURE.md) |
-| Exact implemented and absent surfaces | [docs/IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md) |
-| Current checkpoint, milestone ladder, ordered work, resume point | [docs/PLAN.md](../bpmn-lean-experiment/docs/PLAN.md) |
-| Documentation registry — the index to everything else | [docs/README.md](../bpmn-lean-experiment/docs/README.md) |
-| Commit-bounded capsule cost measurements | [docs/CAPSULE-COST-LEDGER.md](../bpmn-lean-experiment/docs/CAPSULE-COST-LEDGER.md) |
-| Recorded process failures, their counts, and their dispositions | [docs/PROCESS-ASSESSMENT-LEDGER.md](../bpmn-lean-experiment/docs/PROCESS-ASSESSMENT-LEDGER.md) |
-| IL contract, operation meanings, proof obligations, growth rules | [docs/SEMANTIC-PROCESS-IL-SPEC.md](../bpmn-lean-experiment/docs/SEMANTIC-PROCESS-IL-SPEC.md) |
-| Topology-independent admission plus profile capability | [docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) |
-| The execute / preserve / reject admission partition | [docs/PRESERVE-ONLY-ADMISSION-SPEC.md](../bpmn-lean-experiment/docs/PRESERVE-ONLY-ADMISSION-SPEC.md) |
-| Gates, evidence lanes, review policy, test procedure | [docs/TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md) |
-| Feature-by-feature Temporal witnesses, mutations, and replay coverage | [docs/TEMPORAL-TEST-EVIDENCE-MAP.md](../bpmn-lean-experiment/docs/TEMPORAL-TEST-EVIDENCE-MAP.md) |
-| Production Temporal lifetime, ingress, and result contract | [docs/TEMPORAL-PROCESS-LIFECYCLE-SPEC.md](../bpmn-lean-experiment/docs/TEMPORAL-PROCESS-LIFECYCLE-SPEC.md) |
-| The engine runner command and its host simulations | [docs/RUNNABLE-TEMPORAL-MVP-SPEC.md](../bpmn-lean-experiment/docs/RUNNABLE-TEMPORAL-MVP-SPEC.md) |
-| The BPM platform's phase-one product contract | [docs/BPM-PLATFORM-PROPOSAL.md](../bpmn-lean-experiment/docs/BPM-PLATFORM-PROPOSAL.md) |
-| Hands-on browser tutorial for the platform | [docs/BPM-PLATFORM-BROWSER-WALKTHROUGH.md](../bpmn-lean-experiment/docs/BPM-PLATFORM-BROWSER-WALKTHROUGH.md) |
-| The first post-MVP scale-out roadmap | [docs/TEMPORAL-BPMN-EXECUTION-SCALABILITY-PROPOSAL.md](../bpmn-lean-experiment/docs/TEMPORAL-BPMN-EXECUTION-SCALABILITY-PROPOSAL.md) |
-| Temporal platform facts and the mapping audit | [docs/research/TEMPORAL-EXECUTION-RESEARCH.md](../bpmn-lean-experiment/docs/research/TEMPORAL-EXECUTION-RESEARCH.md) |
-| BPMN requirement families and dispositions | [docs/BPMN-REQUIREMENT-LEDGER.md](../bpmn-lean-experiment/docs/BPMN-REQUIREMENT-LEDGER.md) |
-| CIB behaviour relative to BPMN | [docs/CIB-BPMN-RELATION-REGISTER.md](../bpmn-lean-experiment/docs/CIB-BPMN-RELATION-REGISTER.md) |
-| The implemented project-owned condition language | [docs/SIMPLE-BOOLEAN-EXPRESSION-DECISION.md](../bpmn-lean-experiment/docs/SIMPLE-BOOLEAN-EXPRESSION-DECISION.md) |
-| The deferred JUEL compatibility architecture | [docs/JUEL-EVALUATION-ARCHITECTURE-DECISION.md](../bpmn-lean-experiment/docs/JUEL-EVALUATION-ARCHITECTURE-DECISION.md) |
-| Bounded feature meanings, laws, witnesses | [docs/capsules/](../bpmn-lean-experiment/docs/capsules/README.md) |
-| The curated executable whole-model corpus | [model-corpus/](../bpmn-lean-experiment/model-corpus/README.md) |
-| Superseded proposals and the retired handoff | [docs/archived/](../bpmn-lean-experiment/docs/archived/README.md) |
+| Contributor rules, boundaries, working method | [CLAUDE.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/CLAUDE.md) |
+| Mission, authority, product division, durable boundaries | [docs/PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md) |
+| Repository layout, modular monolith, dependency direction, decision register | [docs/ARCHITECTURE.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/ARCHITECTURE.md) |
+| Exact implemented and absent surfaces | [docs/IMPLEMENTATION-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/IMPLEMENTATION-MAP.md) |
+| Current checkpoint, milestone ladder, ordered work, resume point | [docs/PLAN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PLAN.md) |
+| Documentation registry — the index to everything else | [docs/README.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/README.md) |
+| Commit-bounded capsule cost measurements | [docs/CAPSULE-COST-LEDGER.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CAPSULE-COST-LEDGER.md) |
+| Recorded process failures, their counts, and their dispositions | [docs/PROCESS-ASSESSMENT-LEDGER.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROCESS-ASSESSMENT-LEDGER.md) |
+| IL contract, operation meanings, proof obligations, growth rules | [docs/SEMANTIC-PROCESS-IL-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/SEMANTIC-PROCESS-IL-SPEC.md) |
+| Topology-independent admission plus profile capability | [docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) |
+| The execute / preserve / reject admission partition | [docs/PRESERVE-ONLY-ADMISSION-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PRESERVE-ONLY-ADMISSION-SPEC.md) |
+| Gates, evidence lanes, review policy, test procedure | [docs/TESTING-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md) |
+| Feature-by-feature Temporal witnesses, mutations, and replay coverage | [docs/TEMPORAL-TEST-EVIDENCE-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TEMPORAL-TEST-EVIDENCE-MAP.md) |
+| Production Temporal lifetime, ingress, and result contract | [docs/TEMPORAL-PROCESS-LIFECYCLE-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TEMPORAL-PROCESS-LIFECYCLE-SPEC.md) |
+| The engine runner command and its host simulations | [docs/RUNNABLE-TEMPORAL-MVP-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/RUNNABLE-TEMPORAL-MVP-SPEC.md) |
+| The BPM platform's phase-one product contract | [docs/BPM-PLATFORM-PROPOSAL.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/BPM-PLATFORM-PROPOSAL.md) |
+| Hands-on browser tutorial for the platform | [docs/BPM-PLATFORM-BROWSER-WALKTHROUGH.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/BPM-PLATFORM-BROWSER-WALKTHROUGH.md) |
+| The first post-MVP scale-out roadmap | [docs/TEMPORAL-BPMN-EXECUTION-SCALABILITY-PROPOSAL.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TEMPORAL-BPMN-EXECUTION-SCALABILITY-PROPOSAL.md) |
+| Temporal platform facts and the mapping audit | [docs/research/TEMPORAL-EXECUTION-RESEARCH.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/research/TEMPORAL-EXECUTION-RESEARCH.md) |
+| BPMN requirement families and dispositions | [docs/BPMN-REQUIREMENT-LEDGER.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/BPMN-REQUIREMENT-LEDGER.md) |
+| CIB behaviour relative to BPMN | [docs/CIB-BPMN-RELATION-REGISTER.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CIB-BPMN-RELATION-REGISTER.md) |
+| The implemented project-owned condition language | [docs/SIMPLE-BOOLEAN-EXPRESSION-DECISION.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/SIMPLE-BOOLEAN-EXPRESSION-DECISION.md) |
+| The deferred JUEL compatibility architecture | [docs/JUEL-EVALUATION-ARCHITECTURE-DECISION.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/JUEL-EVALUATION-ARCHITECTURE-DECISION.md) |
+| Bounded feature meanings, laws, witnesses | [docs/capsules/](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/README.md) |
+| The curated executable whole-model corpus | [model-corpus/](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/model-corpus/README.md) |
+| Superseded proposals and the retired handoff | [docs/archived/](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/archived/README.md) |
 | The downstream adoption target itself (external, EUPL-1.2 — research input only, never a dependency) | [mgm-tp/a12-workflows](https://github.com/mgm-tp/a12-workflows) |
 
 ## Maintaining this repository

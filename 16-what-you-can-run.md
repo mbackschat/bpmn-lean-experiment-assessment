@@ -113,7 +113,7 @@ Two design decisions make it worth more than a test suite.
 
 **There is deliberately no second explanatory artefact.** Commit `e4402a5` (`refactor(mvp): remove walkthrough surface`) deleted a human-readable walkthrough and its fragment machinery *"so no curated catalog or second explanatory artifact can become a competing scope authority."* The generated pipeline report is the demonstration; `IMPLEMENTATION-MAP.md` is the claim boundary. That deletion is also why *this folder* has a charter forbidding live inventories — the same failure mode, one directory over.
 
-There is deliberately no reviewer-facing guide standing beside it. Navigation lives in the project's [documentation registry](../bpmn-lean-experiment/docs/README.md), which routes every task to the document that owns it.
+There is deliberately no reviewer-facing guide standing beside it. Navigation lives in the project's [documentation registry](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/README.md), which routes every task to the document that owns it.
 
 ## What the milestone explicitly is not
 

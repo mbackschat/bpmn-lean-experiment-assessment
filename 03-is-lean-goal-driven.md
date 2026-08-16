@@ -43,7 +43,7 @@ Hard numbers, re-measured at `0adda45`:
 - Before all of that, the predecessor experiment ("C2") spent ~700 lines and ended *not adopted*, with its correspondence layer removed rather than retained.
 - Stage sizes read **229 → 127 → 276 → 298**. That is not amortising downward, and each stage carried a full independent-review cycle.
 
-The capability that motivated the arc — *stop writing a new compiler per topology* — did eventually ship, but **not from this arc.** The [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) removed the whole-topology execution-surface predicates in ordinary implementation work, without the preservation theorem, and an executable architecture guard now prohibits reintroducing one. That is worth sitting with: the goal the seven stages were built to unlock was reached by a different, cheaper route once the theorem stopped gating it.
+The capability that motivated the arc — *stop writing a new compiler per topology* — did eventually ship, but **not from this arc.** The [profile-parameterized admission work](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) removed the whole-topology execution-surface predicates in ordinary implementation work, without the preservation theorem, and an executable architecture guard now prohibits reintroducing one. That is worth sitting with: the goal the seven stages were built to unlock was reached by a different, cheaper route once the theorem stopped gating it.
 
 ### Something *did* graduate from the arc
 
@@ -92,7 +92,7 @@ The gate also held on three shapes nobody had tested it against in August:
 
 Three capsules did have to record a lane as **deliberately open**, which is the third shape the owner added on 2026-08-07 and the one that widens a proof boundary. The boundary-Timer family is where it landed, and `IMPLEMENTATION-MAP.md` states the gaps rather than smoothing them: both Sub-Process boundary-Timer victory bridges *"take hypotheses their own transitions do not establish"*, `BoundedScopeVictoryStep` is **not** wired into global `ProgramStep` soundness while `BoundedScopeArmingStep` is, and the interrupting Activity boundary Timer's quantified stale-identity law still depends on a key-uniqueness invariant `RuntimeState` does not enforce. Those are recorded absences with named reopen triggers, which is what the shape is for — and they are also the first places since the supersession where the gate's answer was "not affordable here" rather than "closed locally".
 
-**The overall cost does not fall.** The [capsule cost ledger](../bpmn-lean-experiment/docs/CAPSULE-COST-LEDGER.md) holds forty measured increments, and the engine capsules sit in a stubborn band:
+**The overall cost does not fall.** The [capsule cost ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CAPSULE-COST-LEDGER.md) holds forty measured increments, and the engine capsules sit in a stubborn band:
 
 | Capsule | Code churn | Doc churn |
 |---|---:|---:|
@@ -140,7 +140,7 @@ Stage sizes 229 → 127 → 276 → 298 were the first firing of that rule, and 
 | Preserve-only admission | installing a document-wide admission rule inside each profile source reader; the rule now runs once above the reader dispatch, with a case per dispatch path |
 | Resumption-bounded cyclic control flow | *no removal was possible*, and the row says so: deleting any of its mechanisms *"would weaken the reviewed claim rather than simplify its delivery"* |
 
-That last row is what makes the rule credible. A reflection rule that always produces a removal produces theatre. And the rule is now double-entry: the [process assessment ledger](../bpmn-lean-experiment/docs/PROCESS-ASSESSMENT-LEDGER.md) records the *escaped failure* that motivated each removal, with an instance count and an escalation rule of its own. [19](19-process-self-measurement.md) is about that instrument.
+That last row is what makes the rule credible. A reflection rule that always produces a removal produces theatre. And the rule is now double-entry: the [process assessment ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROCESS-ASSESSMENT-LEDGER.md) records the *escaped failure* that motivated each removal, with an instance count and an escalation rule of its own. [19](19-process-self-measurement.md) is about that instrument.
 
 Meanwhile the review regime is still cost, arriving where cost is already high — and this window produced the first hard number attached to it. A correction-audit loop ran three rounds with nothing terminating it, at *"roughly 640,000 reviewer tokens on one planning document"*, and **the owner stopped it rather than any rule.** The bound is now explicit at two audits per stage. That is a real reduction bought by a real overrun.
 

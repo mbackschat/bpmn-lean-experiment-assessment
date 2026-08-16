@@ -10,19 +10,19 @@ That is a weaker claim than "verified", and the project says so in its own words
 
 > *"Agreement between Lean and TypeScript is useful correspondence evidence, not evidence that two independent semantic accounts selected the same meaning."*
 
-A TypeScript-correspondence proof is listed as **explicitly not planned** in [docs/IMPLEMENTATION-MAP.md](../bpmn-lean-experiment/docs/IMPLEMENTATION-MAP.md), with the reason given: proving it would require formalising TypeScript itself. So the interesting question is not "where is the proof" but "what does the project do *instead*, and how much does that buy?"
+A TypeScript-correspondence proof is listed as **explicitly not planned** in [docs/IMPLEMENTATION-MAP.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/IMPLEMENTATION-MAP.md), with the reason given: proving it would require formalising TypeScript itself. So the interesting question is not "where is the proof" but "what does the project do *instead*, and how much does that buy?"
 
 ## Why not generate it from Lean?
 
 Lean can compile to executables, and extraction to other languages exists in the proof-assistant world. Three reasons the project refuses it.
 
-**1. Generation would collapse two evidence lanes into one.** The whole point of having a Lean interpreter *and* a TypeScript core is that two people transcribing the same rules make *different* mistakes. Generated code shares every defect of its generator by construction. [docs/TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md) states the governing rule: *two lanes are distinct only if their failure modes are uncorrelated.* A generated core would fail in exactly the same places as Lean, so the differential pipeline would become a very expensive way to compare a program with itself.
+**1. Generation would collapse two evidence lanes into one.** The whole point of having a Lean interpreter *and* a TypeScript core is that two people transcribing the same rules make *different* mistakes. Generated code shares every defect of its generator by construction. [docs/TESTING-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md) states the governing rule: *two lanes are distinct only if their failure modes are uncorrelated.* A generated core would fail in exactly the same places as Lean, so the differential pipeline would become a very expensive way to compare a program with itself.
 
 **2. The production host constrains the code shape in ways Lean output would not respect.** The core runs inside a Temporal Workflow sandbox. It must be deterministic, dependency-free, free of I/O and clocks, deeply immutable at compile time, and — a real constraint — written in Node's *erasable-syntax* TypeScript subset so it can execute under type-stripping with zero JavaScript emit. See [07 — the Temporal adapter](07-temporal-adapter.md#challenge-1--determinism-and-replay) for why. Extracted code satisfies none of that automatically.
 
 **3. Idiomatic-TypeScript readability is a stated requirement, not a nicety.** `CLAUDE.md` demands closed discriminated unions, exhaustive enum-based switches with a `never` check, `DeepReadonly` contracts, and code that "target TypeScript contributors should be able to discover and use … from editor tooling without reading its implementation." Extracted Lean is not that.
 
-The architecture decision is recorded in [docs/PROJECT-DESIGN.md](../bpmn-lean-experiment/docs/PROJECT-DESIGN.md): the core is *"a separately written, deterministic realization of the reviewed account"* — and, in the same row, *"is not an independent choice of operational account."* Both halves matter, and the next section is about the second one.
+The architecture decision is recorded in [docs/PROJECT-DESIGN.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROJECT-DESIGN.md): the core is *"a separately written, deterministic realization of the reviewed account"* — and, in the same row, *"is not an independent choice of operational account."* Both halves matter, and the next section is about the second one.
 
 ## The distinction that does all the work: two kinds of independence
 
@@ -43,7 +43,7 @@ That sentence names the exact residual. Account-level independence comes from so
 
 ## So what is the actual authoring workflow?
 
-The capsule is the specification; the code is a transcription of it. [docs/TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md) fixes the order of operations:
+The capsule is the specification; the code is a transcription of it. [docs/TESTING-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md) fixes the order of operations:
 
 ```mermaid
 flowchart TB
@@ -232,7 +232,7 @@ Where a proof is unavailable, the project reaches for the type checker and for s
 
 ## What would strengthen it, cheapest first
 
-One asymmetry a reader might expect to find here is absent: TypeScript program validation is **not** weaker than Lean's graph backstop. The [profile-parameterized admission work](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) gave TypeScript *"topology-independent scoped structural program validation plus exact profile definition-scope/operation-kind cardinality"*, split across `semantic-process-graph-admission.ts`, `-operation-admission.ts`, and `-profile.ts`, and both implementations reject unknown or mismatched profiles independently. That gap closed as a *side effect* of removing whole-topology admission predicates rather than as its own work item, which is the cheapest way a gap can close.
+One asymmetry a reader might expect to find here is absent: TypeScript program validation is **not** weaker than Lean's graph backstop. The [profile-parameterized admission work](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) gave TypeScript *"topology-independent scoped structural program validation plus exact profile definition-scope/operation-kind cardinality"*, split across `semantic-process-graph-admission.ts`, `-operation-admission.ts`, and `-profile.ts`, and both implementations reject unknown or mismatched profiles independently. That gap closed as a *side effect* of removing whole-topology admission predicates rather than as its own work item, which is the cheapest way a gap can close.
 
 What remains:
 

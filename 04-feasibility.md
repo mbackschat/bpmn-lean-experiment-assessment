@@ -39,7 +39,7 @@ The target is [A12 Workflows](https://github.com/mgm-tp/a12-workflows), and its 
 | Adoption adapter package | none |
 | Java delegate bridge | none |
 
-**None of those numbers has moved across roughly twenty engine capsules and a complete product**, which is the layering working rather than neglect: A12 had every opportunity to leak into the roadmap as the platform was built, and it did not. What does exist is an [A12 add-on product boundary specification](../bpmn-lean-experiment/docs/A12-ADD-ON-BOUNDARY-SPEC.md) whose whole purpose is to keep A12-specific production decisions *out* of the MIT products — the two A12-shaped vertical slices are retained as optional adoption evidence behind a data-only future seam, exact-byte bound to an immutable baseline, with a preservation oracle that executes the frozen tooling in an isolated export and compares the results. Its cost row is the largest in the ledger at `+16959`, of which 13,794 is frozen legacy source the owner declined to discard.
+**None of those numbers has moved across roughly twenty engine capsules and a complete product**, which is the layering working rather than neglect: A12 had every opportunity to leak into the roadmap as the platform was built, and it did not. What does exist is an [A12 add-on product boundary specification](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/A12-ADD-ON-BOUNDARY-SPEC.md) whose whole purpose is to keep A12-specific production decisions *out* of the MIT products — the two A12-shaped vertical slices are retained as optional adoption evidence behind a data-only future seam, exact-byte bound to an immutable baseline, with a preservation oracle that executes the frozen tooling in an isolated export and compares the results. Its cost row is the largest in the ledger at `+16959`, of which 13,794 is frozen legacy source the owner declined to discard.
 
 So goal 2's distance is large and its posture is good: *not* taking an A12 shortcut is an executable property rather than a policy.
 
@@ -61,7 +61,7 @@ What stands between is mostly **breadth** — general expressions, general data 
 
 Not because any single piece is impossible. Because of the cost per mechanism, which is now measured rather than feared.
 
-**What is implemented today.** The [BPMN requirement ledger](../bpmn-lean-experiment/docs/BPMN-REQUIREMENT-LEDGER.md) now supports a much sharper statement than a hand-made table, and it is the right figure to quote because it is the project's own denominator:
+**What is implemented today.** The [BPMN requirement ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/BPMN-REQUIREMENT-LEDGER.md) now supports a much sharper statement than a hand-made table, and it is the right figure to quote because it is the project's own denominator:
 
 > **All thirteen reusable mechanism families are disposed `unsupported` at family level. Thirty-four of forty-three reviewed requirement rows are `supported`, five are `unsupported`, three are `undecided`, and one is `rejected`.**
 
@@ -106,7 +106,7 @@ The closed slices, each still pinned to a literal:
 
 ### The cost curve, measured
 
-"Does the cost per mechanism fall?" is answerable rather than arguable here, because the project built the instrument. The [capsule cost ledger](../bpmn-lean-experiment/docs/CAPSULE-COST-LEDGER.md) records reproducible commit-bounded nonblank churn for **forty** closed increments. The engine rows:
+"Does the cost per mechanism fall?" is answerable rather than arguable here, because the project built the instrument. The [capsule cost ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CAPSULE-COST-LEDGER.md) records reproducible commit-bounded nonblank churn for **forty** closed increments. The engine rows:
 
 ```text
 nonblank code additions per closed engine increment
@@ -166,13 +166,13 @@ That replacement has been performed, twice, and the proofs survived it.
 
 **The easy half — variable scoping.** The flat Process-variable field was atomically replaced by one Process scope plus private Activity-local scopes keyed by complete effect occurrence, in both implementations, leaving *"every canonical trace and shared wire artifact unchanged"* — no schema change, no evidence regeneration, no Temporal Command difference. Cost: `+540/-73`, among the smallest increments in the ledger.
 
-**The hard half — definition and execution scoping.** The [ordinary embedded Sub-Process capsule](../bpmn-lean-experiment/docs/capsules/EMBEDDED-SUBPROCESS-COMPLETION-SPEC.md) introduced exactly what the worry described:
+**The hard half — definition and execution scoping.** The [ordinary embedded Sub-Process capsule](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/EMBEDDED-SUBPROCESS-COMPLETION-SPEC.md) introduced exactly what the worry described:
 
 - a canonical **definition-scope forest** in the checked graph, with exact node and Sequence Flow ownership;
 - a matching forest in the IL, with operation and control-place ownership plus entry-root and called-root completion strategies;
 - **runtime scope occurrences** — one root plus one level of parent-linked child — owning tokens and every wait kind;
 - `terminate` **removed** and replaced by `reachNoneEnd` plus quiescent `completeScope`, with new `enterScope` structure;
-- and then the [Error propagation capsule](../bpmn-lean-experiment/docs/capsules/SUBPROCESS-ERROR-PROPAGATION-SPEC.md) added **regional cancellation** of a child occurrence subtree with monotonic counter and root-work preservation, later joined by `terminateScope` for selected-occurrence cancellation.
+- and then the [Error propagation capsule](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/SUBPROCESS-ERROR-PROPAGATION-SPEC.md) added **regional cancellation** of a child occurrence subtree with monotonic counter and root-work preservation, later joined by `terminateScope` for selected-occurrence cancellation.
 
 That is parent chains, ownership resolution, interruption propagation, and token cancellation across a subtree — all with Lean relations, laws, non-laws (`regional_interruption_is_not_global_cancellation`, stranded-child non-resumability), independent TypeScript behaviour, CIB-backed schedules, and Temporal evidence. It cost `+5266/-1698` and then `+3370/-398`, the second cheaper because it reused the first.
 
@@ -223,6 +223,6 @@ The reason these numbers are even available is that the project refuses to fake 
 - an oracle disagreement kept visible as candidate deviation `CIB-DEV-0001` rather than absorbed into a compatibility claim;
 - sixteen profiles that declare **no CIB lane at all** rather than stretching a relationship to manufacture one;
 - a cost ledger whose comparison notes argue *against* the project's own convenience — refusing to subtract an unrelated commit from its largest measurement, recording elapsed time as `Unknown` on every row rather than estimating it, and flagging three contaminated ranges as upper bounds;
-- and a [process assessment ledger](../bpmn-lean-experiment/docs/PROCESS-ASSESSMENT-LEDGER.md) that counts the project's own escaped process failures, with a gate that fails when a repeated finding is answered with prose instead of a guard ([19](19-process-self-measurement.md)).
+- and a [process assessment ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROCESS-ASSESSMENT-LEDGER.md) that counts the project's own escaped process failures, with a gate that fails when a repeated finding is answered with prose instead of a guard ([19](19-process-self-measurement.md)).
 
 The last two are what make this page possible. A project that builds the instrument showing its costs are not falling — and a second one counting the times it got its own claims wrong — is telling you something reliable. Slow and accurately measured beats fast and self-deceiving, and the measurement is what makes the next scope decision arguable on evidence rather than on impression.

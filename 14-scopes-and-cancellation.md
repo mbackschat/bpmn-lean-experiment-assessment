@@ -58,7 +58,7 @@ The first is the sharpest. With two child branches, one branch reaching its End 
 
 ## Regional cancellation: the hard half
 
-Ordinary completion is the cooperative case. The [Error propagation capsule](../bpmn-lean-experiment/docs/capsules/SUBPROCESS-ERROR-PROPAGATION-SPEC.md) added the uncooperative one: an Error End Event inside the child, one exact-code handler attached to the directly enclosing Sub-Process, and **atomic cancellation of the child occurrence subtree**.
+Ordinary completion is the cooperative case. The [Error propagation capsule](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/capsules/SUBPROCESS-ERROR-PROPAGATION-SPEC.md) added the uncooperative one: an Error End Event inside the child, one exact-code handler attached to the directly enclosing Sub-Process, and **atomic cancellation of the child occurrence subtree**.
 
 What "atomic" has to mean here is precise:
 

@@ -33,7 +33,7 @@ These are the only **horizontal** generalisations in the repository, and neither
 
 The alternative — and the thing this replaced — is to ask "is this one of the named shapes I recognise?" through exact whole-topology execution-surface predicates: `hasSequentialExecutionSurface`, `hasTimerExecutionSurface`, `hasBalancedParallelExecutionSurface`. Adding a feature means adding a disjunct, forever.
 
-The [profile-parameterized admission specification](../bpmn-lean-experiment/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) splits the question in two instead:
+The [profile-parameterized admission specification](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROFILE-PARAMETERIZED-ADMISSION-SPEC.md) splits the question in two instead:
 
 - **one reusable, topology-independent validator** owning reference closure, arity, ownership, unique root initiation, one completion per scope, scope-local reachability and co-reachability, global initiation-to-root-completion reachability, acyclicity, and the one-producer/one-consumer control-place discipline;
 - **a per-profile capability** naming only *"kinds and cardinalities, not complete node IDs, Sequence Flow IDs, or one full model path."*
@@ -44,7 +44,7 @@ And then it locked the door behind itself. The retired predicate names are in `s
 
 ### Execute, preserve, or reject — per element
 
-The second generalisation is the [preserve-only admission partition](../bpmn-lean-experiment/docs/PRESERVE-ONLY-ADMISSION-SPEC.md), and it is the closest thing in the repository to admitting a *family* rather than a shape. One generic profile classifies parsed material three ways through [a closed recursive classifier](../bpmn-lean-experiment/packages/bpmn-source/src/preserved-element-classification.ts): executed, preserved, or rejected.
+The second generalisation is the [preserve-only admission partition](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PRESERVE-ONLY-ADMISSION-SPEC.md), and it is the closest thing in the repository to admitting a *family* rather than a shape. One generic profile classifies parsed material three ways through [a closed recursive classifier](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/packages/bpmn-source/src/preserved-element-classification.ts): executed, preserved, or rejected.
 
 Three properties make it more than a permissive mode:
 
@@ -52,7 +52,7 @@ Three properties make it more than a permissive mode:
 - **references are excluded from the walk**, so a preserved shape may point at an executed element without dragging it out of execution;
 - and the preserved source reaches its twin's checked graph and program **once exact-source identity is normalized away** — meaning retained notation provably changes nothing executable.
 
-Refusals name their element rather than the document: nullable `id`, `$type`, containment path, named property or attribute, and the missing capability, collected across loci, deduplicated, and ordered by path. What preservation does *not* buy is any execution meaning: `IMPLEMENTATION-MAP.md` keeps a **structural** requirement row separate from the **operational** row it leaves open, and [PRESERVE-ONLY-ADMISSION-SPEC.md](../bpmn-lean-experiment/docs/PRESERVE-ONLY-ADMISSION-SPEC.md) explains why `preserved` is deliberately *not* a disposition in the requirement ledger. Retained notation is countable without reading as executable support.
+Refusals name their element rather than the document: nullable `id`, `$type`, containment path, named property or attribute, and the missing capability, collected across loci, deduplicated, and ordered by path. What preservation does *not* buy is any execution meaning: `IMPLEMENTATION-MAP.md` keeps a **structural** requirement row separate from the **operational** row it leaves open, and [PRESERVE-ONLY-ADMISSION-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PRESERVE-ONLY-ADMISSION-SPEC.md) explains why `preserved` is deliberately *not* a disposition in the requirement ledger. Retained notation is countable without reading as executable support.
 
 ## What a profile capability looks like
 
@@ -142,7 +142,7 @@ Put in terms of the four questions: **question 2 generalised, question 3 did not
 
 ## Why the capability table is guarded rather than trusted
 
-The admission specification's capability table is checked by [an executable coverage guard](../bpmn-lean-experiment/scripts/document-reviewability.test.ts) that derives the registered profile IDs from TypeScript source and requires each to appear exactly once. That guard exists because the table drifted, in two ways whose *shapes* are more instructive than the fix.
+The admission specification's capability table is checked by [an executable coverage guard](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/scripts/document-reviewability.test.ts) that derives the registered profile IDs from TypeScript source and requires each to appear exactly once. That guard exists because the table drifted, in two ways whose *shapes* are more instructive than the fix.
 
 **The smaller defect: a stale hand-maintained inventory.** The capability table carried fewer rows than there were registered profiles — several implemented, evidence-closed, registered profiles were absent from the document entirely, no row and no prose. Every registered profile now has a row carrying its exact `SemanticProfileId`, with multisets derived from the capability source.
 

@@ -6,8 +6,8 @@
 
 | Instrument | Denominator | What it refuses to measure |
 |---|---|---|
-| [Capsule cost ledger](../bpmn-lean-experiment/docs/CAPSULE-COST-LEDGER.md) | reproducible nonblank code and documentation churn per closed increment, commit-bounded | *"semantic value, proof strength, test independence, JSON evidence volume, generated output, or wall time"* |
-| [Process assessment ledger](../bpmn-lean-experiment/docs/PROCESS-ASSESSMENT-LEDGER.md) | observed weaknesses in **how** work was carried out, separately from whether its claims were sound | defects a gate rejected — *"the guard already worked"* |
+| [Capsule cost ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/CAPSULE-COST-LEDGER.md) | reproducible nonblank code and documentation churn per closed increment, commit-bounded | *"semantic value, proof strength, test independence, JSON evidence volume, generated output, or wall time"* |
+| [Process assessment ledger](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/PROCESS-ASSESSMENT-LEDGER.md) | observed weaknesses in **how** work was carried out, separately from whether its claims were sound | defects a gate rejected — *"the guard already worked"* |
 
 The first holds **forty** measured increments and is treated in [04](04-feasibility.md#the-cost-curve-measured) and [11 §6](11-open-questions.md#6--does-the-cost-per-mechanism-fall-and-if-not-what-is-the-plan). The second is the subject of this document.
 
@@ -15,7 +15,7 @@ The first holds **forty** measured increments and is treated in [04](04-feasibil
 
 Its stated reason for existing is precise about the failure it closes:
 
-> [The capsule reflection](../bpmn-lean-experiment/CLAUDE.md) already requires turning each escaped issue into a reusable review question or an executable guard, and [the closure review](../bpmn-lean-experiment/docs/TESTING-SPEC.md) repeats that requirement. **Neither kept a record**, so a finding could be answered with fresh prose, forgotten, and repeated — and a repeat was indistinguishable from a first occurrence.
+> [The capsule reflection](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/CLAUDE.md) already requires turning each escaped issue into a reusable review question or an executable guard, and [the closure review](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md) repeats that requirement. **Neither kept a record**, so a finding could be answered with fresh prose, forgotten, and repeated — and a repeat was indistinguishable from a first occurrence.
 
 That last clause is the whole design. A process rule that fires once looks identical to one that fires every time, and prose cannot tell you which you have. The ledger makes recurrence *countable*, and then attaches a consequence to the count:
 
@@ -30,7 +30,7 @@ Dispositions are a closed set of four, and one of them is the interesting one:
 | `accepted risk` | understood, not worth a guard, explicitly tolerated | **one instance only** |
 | `unguardable` | *no repository fact can detect the class*, so no gate can enforce it | any count, but must state why |
 
-And — the part that makes this more than a good intention — [an executable check](../bpmn-lean-experiment/scripts/document-reviewability.test.ts) enforces it: **a row at two or more instances whose disposition is not `executable guard` fails the infrastructure gate.** The ledger about escaped process failures is itself guarded against becoming an unenforced list.
+And — the part that makes this more than a good intention — [an executable check](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/scripts/document-reviewability.test.ts) enforces it: **a row at two or more instances whose disposition is not `executable guard` fails the infrastructure gate.** The ledger about escaped process failures is itself guarded against becoming an unenforced list.
 
 Checked against the current tree, the rule is honoured exactly. Thirty-seven rows, one hundred and seventeen recorded instances:
 
@@ -124,7 +124,7 @@ The project's own framing sits closer to the second and does not oversell it: th
 
 Three connections, and one of them closes a loop this record opened.
 
-**[15](15-review-and-delegation.md) ends on the observation that vocabulary drift and inventory drift are mechanised while *numeric* drift is not, leaving attribution as the only defence.** The process ledger's ten-instance row is exactly that class — *"a comparative claim about a maintained table was written without reading the column it compares against"* — and it carries **two executable guards**: [cost-ledger rank claims](../bpmn-lean-experiment/scripts/capsule-cost-comparison.test.ts) and [recomputed graduated-specification headroom figures](../bpmn-lean-experiment/scripts/document-reviewability.test.ts). So a slice of numeric drift *was* mechanised, for the two documents where a claim's referent is machine-readable. The row is candid that the rest cannot be: free-form comparative prose stays a review obligation because *"nearest recorded"* cannot be read as nearest-in-value without churning historical rows on a contested reading.
+**[15](15-review-and-delegation.md) ends on the observation that vocabulary drift and inventory drift are mechanised while *numeric* drift is not, leaving attribution as the only defence.** The process ledger's ten-instance row is exactly that class — *"a comparative claim about a maintained table was written without reading the column it compares against"* — and it carries **two executable guards**: [cost-ledger rank claims](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/scripts/capsule-cost-comparison.test.ts) and [recomputed graduated-specification headroom figures](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/scripts/document-reviewability.test.ts). So a slice of numeric drift *was* mechanised, for the two documents where a claim's referent is machine-readable. The row is candid that the rest cannot be: free-form comparative prose stays a review obligation because *"nearest recorded"* cannot be read as nearest-in-value without churning historical rows on a contested reading.
 
 That is the correct partial answer, and it sharpens rather than removes the warning: **numeric drift is guarded exactly where the number has an executable owner, and nowhere else.** Every figure in *this* record is in the "nowhere else" category, which is why the charter requires each one to name the artefact that produced it.
 

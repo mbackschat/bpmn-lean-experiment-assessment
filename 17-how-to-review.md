@@ -109,4 +109,4 @@ Each of these is a pattern, not a guess — several have occurred in this reposi
 
 ## Where to run things
 
-Executable commands, gate selection, and the route to each owning document stay in the project's own [documentation registry](../bpmn-lean-experiment/docs/README.md) and [TESTING-SPEC.md](../bpmn-lean-experiment/docs/TESTING-SPEC.md), because paths and commands belong with the files they address. [16](16-what-you-can-run.md) covers what those commands establish and what they do not.
+Executable commands, gate selection, and the route to each owning document stay in the project's own [documentation registry](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/README.md) and [TESTING-SPEC.md](https://github.com/mbackschat/bpmn-lean-experiment/blob/0adda45/docs/TESTING-SPEC.md), because paths and commands belong with the files they address. [16](16-what-you-can-run.md) covers what those commands establish and what they do not.
